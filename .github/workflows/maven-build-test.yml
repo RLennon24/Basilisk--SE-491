@@ -7,7 +7,7 @@
 # documentation.
 
 name: Java CI with Maven
-run-name: ${{ github.sha }} Maven Build and Test
+run-name: Maven Build and Test ${{ github.sha }}
 
 on:
   push:

@@ -1,4 +1,5 @@
-name: Publish package to GitHub Packages
+name: Publish Packages
+run-name: Publish Packages ${{ github.sha }}
 
 on:
   push:
