@@ -1,10 +1,11 @@
 package basilisk.web.servlet.exception;
 
-import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class EncryptionExceptionTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+
+public class EncryptionExceptionTest {
 
     @Test
     public void testEncryptionExceptionThrown() {

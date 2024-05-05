@@ -1,14 +1,15 @@
 package basilisk.web.servlet.keygen;
 
 import basilisk.web.servlet.exception.EncryptionException;
-import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.security.PublicKey;
 
-public class KeyCacheTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+
+public class KeyCacheTest {
 
     @Test
     public void testKeyCache() {

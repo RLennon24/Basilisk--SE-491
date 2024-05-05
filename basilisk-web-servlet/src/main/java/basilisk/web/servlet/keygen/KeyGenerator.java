@@ -37,4 +37,8 @@ public class KeyGenerator {
 
         return keyPair.getPublic();
     }
+
+    public static void clearKeyPair() {
+        keyPair = null;
+    }
 }
