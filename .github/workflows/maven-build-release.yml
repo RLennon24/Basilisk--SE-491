@@ -11,7 +11,7 @@ permissions:
   contents: write   # This is required to create/push the new git tag
 
 env:
-  VERSION: ${{ github.REF_NAME#v }}
+  VERSION: ${{ github.ref_name }}
 
 jobs:
   test-project:
