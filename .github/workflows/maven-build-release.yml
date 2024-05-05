@@ -47,10 +47,7 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml
       - name: Checking package
-        run: |
-            ls -la
-            cd ./target
-            ls -la
+      - run: mkdir staging && cp target/*.jar staging
       - name: Create Release
         id: create-new-release
         uses: actions/create-release@v1
@@ -70,7 +67,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create-new-release.outputs.upload_url }}
-          asset_path: target/basilisk-user-servlet-1.0-SNAPSHOT.jar
+          asset_path: ./staging/*.jar
           asset_name: basilisk-user-servlet-${{ env.VERSION }}.jar
           asset_content_type: application/jar
 
