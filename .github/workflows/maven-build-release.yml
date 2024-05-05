@@ -47,7 +47,7 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml
       - name: Checking package
-      - run: mkdir staging && cp target/*.jar staging
+        run: mkdir staging && cp target/*.jar staging
       - name: Create Release
         id: create-new-release
         uses: actions/create-release@v1
