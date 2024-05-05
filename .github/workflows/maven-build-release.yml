@@ -11,7 +11,7 @@ permissions:
   contents: write   # This is required to create/push the new git tag
 
 env:
-  VERSION: ${GITHUB_REF_NAME#v}
+  VERSION: ${{ GITHUB_REF_NAME#v }}
 
 jobs:
   test-project:
@@ -65,7 +65,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create-new-release.outputs.upload_url }}
-          asset_path: ./basilisk-user-servlet/target/*.jar
+          asset_path: ./basilisk-user-servlet/target/basilisk-user-servlet-1.0-SNAPSHOT.jar
           asset_name: basilisk-user-servlet-${{ env.VERSION }}.jar
           asset_content_type: application/jar
 
