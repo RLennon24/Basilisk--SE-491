@@ -104,6 +104,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: $UPLOADURL
-          asset_path: ./target/basilisk-web-servlet-1.0-SNAPSHOT.jar
+          asset_path: ./basilisk-web-servlet/target/basilisk-web-servlet-1.0-SNAPSHOT.jar
           asset_name: basilisk-web-servlet-${{ env.VERSION }}.jar
           asset_content_type: application/jar
