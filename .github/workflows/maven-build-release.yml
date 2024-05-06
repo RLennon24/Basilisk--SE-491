@@ -60,7 +60,8 @@ jobs:
             Changes in this Release for tag ${{ env.VERSION }}
           draft: false
           prerelease: false
-      - id: store-release-url
+      - name: Store Release URL
+        id: store-release-url
         run: echo ${{ steps.create-new-release.outputs.upload_url }} >> "$GITHUB_OUTPUT"
       - name: Upload Release Asset
         id: upload-release-asset
