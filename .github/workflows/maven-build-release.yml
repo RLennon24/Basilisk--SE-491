@@ -92,8 +92,8 @@ jobs:
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
       - name: Save env variables
-        env:
-          UPLOADURL: ${{ needs.build-user-servlet.outputs.upload-url }}
+        run: |
+          UPLOADURL=${{ needs.build-user-servlet.outputs.upload-url }}
       - name: Build with Maven
         run: mvn -B package --file pom.xml
       - name: Upload Release Asset
