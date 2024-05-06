@@ -56,7 +56,7 @@ jobs:
           draft: false
           prerelease: false
       - name: Upload User Server JAR
-        id: upload-release-asset
+        id: upload-user-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -66,7 +66,7 @@ jobs:
           asset_name: basilisk-user-servlet-${{ env.VERSION }}.jar
           asset_content_type: application/jar
       - name: Upload Web Server JAR
-        id: upload-release-asset
+        id: upload-web-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
