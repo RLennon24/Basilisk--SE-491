@@ -35,7 +35,7 @@ public class BasiliskWebServletAppTest {
 		mockMvc.perform(MockMvcRequestBuilders
 			.get("/api/data/1")
 			.accept(MediaType.APPLICATION_JSON))
-			.andExpect(status().isOK())
+			.andExpect(status().isOk())
 			.andExpect(content().string("The data for ID: 1"));
 
 	}    
