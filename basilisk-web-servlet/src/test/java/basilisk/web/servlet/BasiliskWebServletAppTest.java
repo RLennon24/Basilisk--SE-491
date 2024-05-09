@@ -17,7 +17,7 @@ public class BasiliskWebServletAppTests {
 	@Autowired
 	private MockMvc mockMvc;	//The MockMvc gives methods that can be used to test endpoints without a complete server startup
 
-	@Test //For POST endpoint handling key Exchange
+	@Test //For the POST endpoint handling key Exchange
 	public void testExchangeKey() throws Exception{
 		String askForBody = "{\"publicKey\":\"ClientPublicKey\"}"
 	
