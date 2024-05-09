@@ -1,4 +1,4 @@
-package basilisk.web.servlet; 
+package basilisk.web.servlet.service.keyexchange;
 import basilisk.web.servlet.exception.EncryptionException;
 import basilisk.web.servlet.keygen.KeyCache;
 import basilisk.web.servlet.keygen.KeyGenerator;
