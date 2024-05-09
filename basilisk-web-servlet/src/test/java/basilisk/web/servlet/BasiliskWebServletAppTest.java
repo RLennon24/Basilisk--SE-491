@@ -1,7 +1,5 @@
 package basilisk.web.servlet;
 //Below is my web servlet testing code. -Zachary Wile
-import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
