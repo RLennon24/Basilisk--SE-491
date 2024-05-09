@@ -19,7 +19,7 @@ public class BasiliskWebServletAppTests {
 
 	@Test //For the POST endpoint handling key Exchange
 	public void testExchangeKey() throws Exception{
-		String askForBody = "{\"publicKey\":\"ClientPublicKey\"}"
+		String askForBody = "{\"publicKey\":\"ClientPublicKey\"}";
 	
 	//Simulates a POST request to the api/exchange-keys
 	mockMvc.perform(MockMvcRequestBuilders
