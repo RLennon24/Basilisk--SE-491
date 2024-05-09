@@ -1,5 +1,5 @@
 basilisk/web/servlet/keygen/KeyGenerator.class
 basilisk/web/servlet/keygen/KeyCache.class
-BasiliskKeyExchangeEndpoint.class
+basilisk/web/servlet/BasiliskKeyExchangeEndpoint.class
 basilisk/web/servlet/exception/EncryptionException.class
 basilisk/web/servlet/BasiliskWebServletApp.class
