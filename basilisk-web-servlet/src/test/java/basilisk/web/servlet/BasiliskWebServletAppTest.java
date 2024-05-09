@@ -3,11 +3,11 @@ package basilisk.web.servlet;
 import basilisk.web.servlet.BasiliskKeyExchangeEndpoint;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 //These are all the essential Spring and JUnit libraries needed for testing. 
 
 @WebMvcTest(BasiliskKeyExchangeEndpoint.class) //This is to indicate that the test class is specifically for testing the BasiliskWebServletApp class
@@ -21,12 +21,12 @@ public class BasiliskWebServletAppTest {
 		String askForBody = "{\"publicKey\":\"ClientPublicKey\"}";
 	
 	//Simulates a POST request to the api/exchange-keys
-	mockMvc.perform(MockMvcRequestBuilders
-		.post("/api/exchange-keys")
-		.content(askForBody)
-		.contentType(MediaType.APPLICATION_JSON))
-		.andExpect(status().isOk())
-		.andExpect(jsonPath("$.serverPublicKey").exists());
+		mockMvc.perform(MockMvcRequestBuilders
+			.post("/api/exchange-keys")
+			.content(askForBody)
+			.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.serverPublicKey").exists());
 	}
 
 		//Test method for the GET endpoint, then it expects a succesful response status. Then it verifies that the returned content matches "The data for ID: 1"
@@ -38,6 +38,5 @@ public class BasiliskWebServletAppTest {
 			.andExpect(status().isOK())
 			.andExpect(content().string("The data for ID: 1"));
 
-	}
-	    
+	}    
 }
