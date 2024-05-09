@@ -1,5 +1,6 @@
 package basilisk.web.servlet;
 //Below is my web servlet testing code. -Zachary Wile
+import basilisk.web.servlet.BasiliskKeyExchangeEndpoint;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -29,13 +30,13 @@ public class BasiliskWebServletAppTest {
 	}
 
 		//Test method for the GET endpoint, then it expects a succesful response status. Then it verifies that the returned content matches "The data for ID: 1"
-		@Test
+	@Test
 	public void getTestData() throws Exception {
 		mockMvc.perform(MockMvcRequestBuilders
-		.get("/api/data/1")
-		.accept(MediaType.APPLICATION_JSON))
-		.andExpect(status().isOK())
-		.andExpect(content().string("The data for ID: 1"));
+			.get("/api/data/1")
+			.accept(MediaType.APPLICATION_JSON))
+			.andExpect(status().isOK())
+			.andExpect(content().string("The data for ID: 1"));
 
 	}
 	    
