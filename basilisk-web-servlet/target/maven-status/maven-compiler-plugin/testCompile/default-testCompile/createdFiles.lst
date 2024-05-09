@@ -1,4 +1,5 @@
-basilisk/web/servlet/BasiliskWebServletAppTest.class
-basilisk/web/servlet/exception/EncryptionExceptionTest.class
-basilisk/web/servlet/keygen/KeyCacheTest.class
-basilisk/web/servlet/keygen/KeyGeneratorTest.class
+basilisk\web\servlet\BasiliskWebServletAppTest.class
+basilisk\web\servlet\keygen\KeyCacheTest.class
+basilisk\web\servlet\keygen\KeyGeneratorTest.class
+basilisk\web\servlet\exception\EncryptionExceptionTest.class
+basilisk\web\servlet\service\keyexchange\BasiliskKeyExchangeEndpointTest.class
