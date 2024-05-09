@@ -12,7 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 //These are all the essential Spring and JUnit libraries needed for testing. 
 
 @WebMvcTest(BasiliskKeyExchangeEndpoint.class) //This is to indicate that the test class is specifically for testing the BasiliskWebServletApp class
-public class BasiliskWebServletAppTests {
+public class BasiliskWebServletAppTest {
 	
 	@Autowired
 	private MockMvc mockMvc;	//The MockMvc gives methods that can be used to test endpoints without a complete server startup
