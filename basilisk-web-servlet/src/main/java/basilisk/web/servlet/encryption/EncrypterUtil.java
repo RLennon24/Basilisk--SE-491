@@ -1,18 +1,36 @@
 package basilisk.web.servlet.encryption;
 
 import basilisk.web.servlet.exception.EncryptionException;
+import basilisk.web.servlet.keygen.KeyCache;
+import basilisk.web.servlet.keygen.ServerKeyGenerator;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import java.security.SecureRandom;
+import java.security.Signature;
 import java.util.Base64;
 
 public class EncrypterUtil {
     private static Base64.Encoder encoder = Base64.getEncoder();
     private static Base64.Decoder decoder = Base64.getDecoder();
     private static SecureRandom random = new SecureRandom();
+
+    public static String encodeMessage(String message, String servletIpAddress) {
+        message = encrypt(message, KeyCache.getEncodingKeyForService(servletIpAddress));
+        message = createMac(message, KeyCache.getMacKeyForService(servletIpAddress));
+        return message;
+    }
+
+    public static String decodeMessage(String hmacStr, String message, String servletIpAddress) {
+        if (!checkMac(hmacStr, message, KeyCache.getMacKeyForService(servletIpAddress))) {
+            throw new EncryptionException("Incorrect MAC Detected. Closing channel.");
+        }
+
+        message = decrypt(message, KeyCache.getEncodingKeyForService(servletIpAddress));
+        return message;
+    }
 
     public static String encrypt(String message, SecretKey encodingKey) {
         try {
@@ -34,6 +52,22 @@ public class EncrypterUtil {
             return encoder.encodeToString(object);
         } catch (Exception e) {
             throw new EncryptionException("Could not encrypt message with key");
+        }
+    }
+
+    public static String decrypt(String cipherText, SecretKey encodingKey) {
+
+        try {
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            byte[] bytesIV = new byte[16];
+            random.nextBytes(bytesIV);
+            IvParameterSpec ivspec = new IvParameterSpec(bytesIV);
+
+            cipher.init(Cipher.DECRYPT_MODE, encodingKey, ivspec);
+            byte[] decrypted = cipher.doFinal(decoder.decode(cipherText));
+            return new String(decrypted, "UTF-8");
+        } catch (Exception e) {
+            throw new EncryptionException("Could not decrypt message with key");
         }
     }
 
@@ -61,7 +95,7 @@ public class EncrypterUtil {
         }
     }
 
-    public String createMac(String input, SecretKey macKey) {
+    public static String createMac(String input, SecretKey macKey) {
         String encrypted = "";
 
         try {
@@ -75,5 +109,40 @@ public class EncrypterUtil {
         }
 
         return encrypted;
+    }
+
+    public static Boolean checkMac(String macStr, String msg, SecretKey macKey) {
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(macKey);
+            byte[] stringBytes = msg.getBytes();
+            byte[] macBytes = mac.doFinal(stringBytes);
+            String newMacStr = new String(macBytes);
+
+            return macStr.equals(newMacStr);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public static String sign(String message) {
+        // create signature with SHA256 and RSA then sign message
+        try {
+            byte[] toSign = message.getBytes();
+
+            Signature sign = Signature.getInstance("SHA256withRSA");
+            sign.initSign(ServerKeyGenerator.getPrivateKey());
+            sign.update(toSign);
+            String signature = EncrypterUtil.encrypt(sign.sign());
+
+            toSign = (message + "\r\n" + signature).getBytes();
+
+            return new String(toSign);
+        } catch (Exception e) {
+            throw new EncryptionException("Could not sign bytes");
+        }
     }
 }

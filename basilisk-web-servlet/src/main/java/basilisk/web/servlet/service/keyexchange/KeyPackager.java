@@ -1,24 +1,26 @@
 package basilisk.web.servlet.service.keyexchange;
 
 import basilisk.web.servlet.encryption.EncrypterUtil;
-import basilisk.web.servlet.keygen.ServerKeyGenerator;
+import basilisk.web.servlet.exception.EncryptionException;
+import basilisk.web.servlet.keygen.KeyCache;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.Signature;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 public class KeyPackager {
     /**
      * method to create string to be transported with signed encrypted message
-     * note that RSA with OAEP padding is used, and the message is "Bob" + "\n" + timeStamp + "\n" + cipherString,
-     * where timeStamp is the time from Alice's position and cipherString is "Alice" + "\n" + encodedSessionKey
+     * note that RSA with OAEP padding is used, and the message is "\n" + timeStamp + "\n" + cipherString,
+     * where timeStamp is the time from web servlet's position and cipherString is "Alice" + "\n" + encodedSessionKey
      *
      * @return message string to be initially sent with session key
      */
@@ -32,45 +34,48 @@ public class KeyPackager {
             keyGen.init(random);
             SecretKey sharedKey = keyGen.generateKey();
 
+            // add the session key for the cache
+            KeyCache.addServiceSessionKey(servletIpAddress, sharedKey);
+
             // create string then byte array of message to be encoded
-            String encodedSessionKey = EncrypterUtil.encrypt(sharedKey.getEncoded());
+            String encodedSessionKey = EncrypterUtil.encrypt(KeyCache.getSessionKeyForService(servletIpAddress).getEncoded());
 
-//            byte[] s = EncrypterUtil.decrypt(hashFunction(encodedSessionKey, "enc"));
-//            byte[] encKey = Arrays.copyOfRange(s, 0,32);
-//            SecretKeySpec macSks = new SecretKeySpec(EncrypterUtil.decrypt(hashFunction(encodedSessionKey, "mac")), "AES");
-//            SecretKeySpec encSks = new SecretKeySpec(encKey, "AES");
-//            macKey = macSks;
-//            encodingKey = encSks;
+            // generate mac and encoding keys
+            byte[] s = EncrypterUtil.decrypt(hashFunction(encodedSessionKey, "enc"));
+            byte[] encKey = Arrays.copyOfRange(s, 0, 32);
+            SecretKeySpec macSks = new SecretKeySpec(EncrypterUtil.decrypt(hashFunction(encodedSessionKey, "mac")), "AES");
+            SecretKeySpec encSks = new SecretKeySpec(encKey, "AES");
+            // add mac and session keys to cache
+            KeyCache.addServiceMacKey(servletIpAddress, macSks);
+            KeyCache.addServiceEncodingKey(servletIpAddress, encSks);
 
-            byte[] toEncode = encodedSessionKey.getBytes();
+            message = encode(servletIpAddress, encodedSessionKey);
+        } catch (Exception e) {
+            throw new EncryptionException("Could not do key transport for servlet");
+        }
 
-            // create cipher and encode message with Alice identifier and session key
+        return message;
+    }
+
+    private static String encode(String servletIpAddress, String encryptedKey) {
+        try {
+            SecureRandom random = new SecureRandom();
+            byte[] toEncode = encryptedKey.getBytes();
+
+            // create cipher and encode message with self identifier and session key
             Cipher cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.ENCRYPT_MODE, bobKey, random);
+            cipher.init(Cipher.ENCRYPT_MODE, KeyCache.getPublicKeyForService(servletIpAddress), random);
             byte[] cipherText = cipher.doFinal(toEncode);
 
             // create string then byte array of message to be signed
             String cipherString = EncrypterUtil.encrypt(cipherText);
             String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date(System.currentTimeMillis()));
-            String msg2 = "Bob" + "\n" + timeStamp + "\n" + cipherString;
-            byte[] toSign = msg2.getBytes();
+            String messageForTransport = timeStamp + "\n" + cipherString;
 
-            // create signature with SHA256 and RSA then sign message
-            Signature sign = Signature.getInstance("SHA256withRSA");
-            sign.initSign(ServerKeyGenerator.getPrivateKey());
-            sign.update(toSign);
-            String signature = EncrypterUtil.encrypt(sign.sign());
-
-            toSign = (msg2 + "\r\n" + signature).getBytes();
-
-            // update message to new string
-            message = new String(toSign);
-
+            return EncrypterUtil.sign(messageForTransport);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new EncryptionException("Could not encode message for servlet");
         }
-
-        return message;
     }
 
     private String hashFunction(String input, String concat) throws NoSuchAlgorithmException {
@@ -80,7 +85,7 @@ public class KeyPackager {
         // digest() method is called
         // to calculate message digest of the input string
         // returned as array of byte
-        byte[] messageDigest = md.digest((input+concat).getBytes());
+        byte[] messageDigest = md.digest((input + concat).getBytes());
 
         // Convert byte array into signum representation
         BigInteger no = new BigInteger(1, messageDigest);
