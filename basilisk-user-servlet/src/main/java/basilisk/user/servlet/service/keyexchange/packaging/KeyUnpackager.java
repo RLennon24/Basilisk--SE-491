@@ -1,4 +1,4 @@
-package basilisk.user.servlet.service.keyexchange;
+package basilisk.user.servlet.service.keyexchange.packaging;
 
 import basilisk.user.servlet.encryption.EncrypterUtil;
 import basilisk.user.servlet.exception.EncryptionException;

@@ -1,27 +1,40 @@
 //Below is my code for the Web Servlet - Zachary Wile
 package basilisk.web.servlet.service.keyexchange;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import basilisk.web.servlet.keygen.ServerKeyGenerator;
+import basilisk.web.servlet.service.keyexchange.packaging.KeyPackage;
+import basilisk.web.servlet.service.keyexchange.packaging.KeyPackager;
+import basilisk.web.servlet.service.keyexchange.packaging.KeyUnpackager;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import java.security.PublicKey;
 import java.security.Key;
-import basilisk.web.servlet.keygen.KeyGenerator;
 import basilisk.web.servlet.keygen.KeyCache;
 import basilisk.web.servlet.exception.EncryptionException;
 import java.util.Map;
 import java.util.HashMap;
 
 @RestController
+@RequestMapping(path = "/keyexchange", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 public class BasiliskKeyExchangeEndpoint {
 
-    @PostMapping("/exchange-keys")
-    public ResponseEntity<?> exchangeKeys(@RequestBody Map<String, String> requestData) {
-        Key key = KeyGenerator.getPublicKey(); // This will retrieve the key as its superclass type
+    @PostMapping("/publicKey")
+    public ResponseEntity<KeyPackage> exchangePublicKey(@RequestBody KeyPackage transport) {
+        try {
+            KeyUnpackager.processPublicKeyPackage(transport);
+            KeyPackage keyPackage = KeyPackager.generatePublicKeyTransport();
+            return ResponseEntity.ok(keyPackage);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @PostMapping("/symmetricKey")
+    public ResponseEntity<String> exchangeKeys(@RequestBody KeyPackage transport) {
+        KeyUnpackager.processPublicKeyPackage(transport);
+        Key key = ServerKeyGenerator.getPublicKey(); // This will retrieve the key as its superclass type
         if (!(key instanceof PublicKey)) {
             // This will be used to specify explicity the generic type for ResponseEntity
             return ResponseEntity.<String>status(HttpStatus.INTERNAL_SERVER_ERROR).body("Expected a PublicKey but received a different type.");
@@ -35,7 +48,7 @@ public class BasiliskKeyExchangeEndpoint {
     @GetMapping("/data")
     public ResponseEntity<String> getData(@RequestParam("id") String serviceIp) {
         try {
-            PublicKey key = (PublicKey) KeyCache.getKeyForService(serviceIp); // KeyCache returns PublicKey and then cast if necessary.
+            PublicKey key = (PublicKey) KeyCache.getEncodingKeyForService(serviceIp); // KeyCache returns PublicKey and then cast if necessary.
             return ResponseEntity.ok("Public key for service IP " + serviceIp + ": " + key.toString());
         } catch (EncryptionException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());

@@ -143,6 +143,25 @@ public class EncrypterUtil {
         return false;
     }
 
+    public static String sign(String message) {
+        // create signature with SHA256 and RSA then sign message
+        try {
+            byte[] toSign = message.getBytes();
+
+            Signature sign = Signature.getInstance("SHA256withRSA");
+            // TODO: get private key
+            //sign.initSign(ServerKeyGenerator.getPrivateKey());
+            sign.update(toSign);
+            String signature = EncrypterUtil.encrypt(sign.sign());
+
+            toSign = (message + "\r\n" + signature).getBytes();
+
+            return new String(toSign);
+        } catch (Exception e) {
+            throw new EncryptionException("Could not sign bytes");
+        }
+    }
+
     public static String hashFunction(String input, String concat) throws NoSuchAlgorithmException {
         // getInstance() method is called with algorithm SHA-512
         MessageDigest md = MessageDigest.getInstance("SHA-512");
