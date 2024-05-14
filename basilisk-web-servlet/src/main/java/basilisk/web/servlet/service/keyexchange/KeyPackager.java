@@ -41,9 +41,9 @@ public class KeyPackager {
             String encodedSessionKey = EncrypterUtil.encrypt(KeyCache.getSessionKeyForService(servletIpAddress).getEncoded());
 
             // generate mac and encoding keys
-            byte[] s = EncrypterUtil.decrypt(hashFunction(encodedSessionKey, "enc"));
+            byte[] s = EncrypterUtil.decrypt(EncrypterUtil.hashFunction(encodedSessionKey, "enc"));
             byte[] encKey = Arrays.copyOfRange(s, 0, 32);
-            SecretKeySpec macSks = new SecretKeySpec(EncrypterUtil.decrypt(hashFunction(encodedSessionKey, "mac")), "AES");
+            SecretKeySpec macSks = new SecretKeySpec(EncrypterUtil.decrypt(EncrypterUtil.hashFunction(encodedSessionKey, "mac")), "AES");
             SecretKeySpec encSks = new SecretKeySpec(encKey, "AES");
             // add mac and session keys to cache
             KeyCache.addServiceMacKey(servletIpAddress, macSks);
@@ -76,27 +76,5 @@ public class KeyPackager {
         } catch (Exception e) {
             throw new EncryptionException("Could not encode message for servlet");
         }
-    }
-
-    private String hashFunction(String input, String concat) throws NoSuchAlgorithmException {
-        // getInstance() method is called with algorithm SHA-512
-        MessageDigest md = MessageDigest.getInstance("SHA-512");
-
-        // digest() method is called
-        // to calculate message digest of the input string
-        // returned as array of byte
-        byte[] messageDigest = md.digest((input + concat).getBytes());
-
-        // Convert byte array into signum representation
-        BigInteger no = new BigInteger(1, messageDigest);
-
-        // Convert message digest into hex value
-        String hashtext = no.toString(16);
-
-        // Add preceding 0s to make it 32 bit
-        while (hashtext.length() < 32) {
-            hashtext = "0" + hashtext;
-        }
-        return hashtext;
     }
 }

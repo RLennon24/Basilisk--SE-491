@@ -1,6 +1,6 @@
-package basilisk.web.servlet.encryption;
+package basilisk.user.servlet.encryption;
 
-import basilisk.web.servlet.exception.EncryptionException;
+import basilisk.user.servlet.exception.EncryptionException;
 import basilisk.web.servlet.keygen.KeyCache;
 import basilisk.web.servlet.keygen.ServerKeyGenerator;
 
@@ -131,22 +131,16 @@ public class EncrypterUtil {
         return false;
     }
 
-    public static String sign(String message) {
-        // create signature with SHA256 and RSA then sign message
+    public static boolean checkSignature(String signedObj, String signature) {
         try {
-            byte[] toSign = message.getBytes();
-
             Signature sign = Signature.getInstance("SHA256withRSA");
-            sign.initSign(ServerKeyGenerator.getPrivateKey());
-            sign.update(toSign);
-            String signature = EncrypterUtil.encrypt(sign.sign());
-
-            toSign = (message + "\r\n" + signature).getBytes();
-
-            return new String(toSign);
+            sign.initVerify(aliceKey);
+            sign.update(signedObj.getBytes());
+            return sign.verify(decoder.decode(signature));
         } catch (Exception e) {
-            throw new EncryptionException("Could not sign bytes");
+            e.printStackTrace();
         }
+        return false;
     }
 
     public static String hashFunction(String input, String concat) throws NoSuchAlgorithmException {
