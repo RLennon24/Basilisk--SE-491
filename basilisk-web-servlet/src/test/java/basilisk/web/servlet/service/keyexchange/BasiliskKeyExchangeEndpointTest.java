@@ -30,7 +30,6 @@ public class BasiliskKeyExchangeEndpointTest {
 	private KeyCache keyCache;
 
     @Test //For the POST endpoint handling key Exchange
-    @Test
     public void testExchangeKey() throws Exception {
         try (MockedStatic<KeyCache> mockedKeyCache = Mockito.mockStatic(KeyCache.class)) {
             PublicKey mockPublicKey = mock(PublicKey.class);
