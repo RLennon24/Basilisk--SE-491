@@ -1,0 +1,11 @@
+{
+  "id": "user-personal-details",
+  "data": "name: Marcel Alfonso Garcia",
+  "tags": [
+    "personal",
+    "common"
+  ],
+  "roles": [
+    "basic"
+  ]
+}
