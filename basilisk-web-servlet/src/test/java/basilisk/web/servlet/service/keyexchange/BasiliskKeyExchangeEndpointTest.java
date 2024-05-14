@@ -41,7 +41,9 @@ public class BasiliskKeyExchangeEndpointTest {
                     .content(requestBody)
                     .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.serverPublicKey").exists());
+                .andExpect(jsonPath("$.serverPublicKey").exists())
+                .andExpect(jsonPath("$.serverPublicKey").isNotEmpty());
+
         }
     }    
     //Test method for the GET endpoint, then it expects a succesful response status. Then it verifies that the returned content matches "The data for ID: 1"
