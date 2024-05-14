@@ -55,7 +55,7 @@ public class BasiliskKeyExchangeEndpointTest {
             mockMvc.perform(MockMvcRequestBuilders.get("/api/data/1")
                     .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("The data for ID: 1 with the key: " + mockPublicKey.toString()));
+                .andExpect(content().string("Data for ID: 1 with the key: " + mockPublicKey.toString()));
         }
     }
 }
