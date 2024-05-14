@@ -20,21 +20,21 @@ public class BasiliskKeyExchangeEndpoint {
     @PostMapping("/exchange-keys")
     public ResponseEntity<Map<String, String>> exchangeKeys(@RequestBody Map<String, String> requestData) {
         Map<String, String> response = new HashMap<>();
-        PublicKey publicKey = KeyGenerator.getPublicKey(); // Accessing my static method correctly
-        response.put("serverPublicKey", publicKey.toString()); // Assuming toString gives the desired format
+        PublicKey publicKey = KeyGenerator.getPublicKey(); // This ensures KeyGenerator.getPublicKey() returns PublicKey
+        response.put("serverPublicKey", publicKey.toString()); // This assumes publicKey is not null
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/data")
     public ResponseEntity<String> getData(@RequestParam("id") String id) {
         try {
-            // Assume KeyCache can throw an EncryptionException
-            String data = KeyCache.getData(id);
+            String data = KeyCache.getData(id); // This ensures this method is defined in KeyCache
             return ResponseEntity.ok(data);
         } catch (EncryptionException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving data");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving data: " + e.getMessage());
         }
     }
 }
+
 
 
