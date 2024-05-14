@@ -19,15 +19,15 @@ import java.util.HashMap;
 public class BasiliskKeyExchangeEndpoint {
 
     @PostMapping("/exchange-keys")
-    public ResponseEntity<Map<String, Object>> exchangeKeys(@RequestBody Map<String, String> requestData) {
-        Map<String, Object> response = new HashMap<>();
+    public ResponseEntity<?> exchangeKeys(@RequestBody Map<String, String> requestData) {
         Key key = KeyGenerator.getPublicKey(); // Retrieve the key as its superclass type
-        if (key instanceof PublicKey) {
-            PublicKey publicKey = (PublicKey) key; // Safely cast to PublicKey
-            response.put("serverPublicKey", publicKey.toString());
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Expected a PublicKey but received a different type.");
+        if (!(key instanceof PublicKey)) {
+            // Explicitly specifying the generic type for ResponseEntity
+            return ResponseEntity.<String>status(HttpStatus.INTERNAL_SERVER_ERROR).body("Expected a PublicKey but received a different type.");
         }
+        PublicKey publicKey = (PublicKey) key; // Safely cast to PublicKey
+        Map<String, Object> response = new HashMap<>();
+        response.put("serverPublicKey", publicKey.toString());
         return ResponseEntity.ok(response);
     }
 
@@ -43,5 +43,3 @@ public class BasiliskKeyExchangeEndpoint {
         }
     }
 }
-
-
