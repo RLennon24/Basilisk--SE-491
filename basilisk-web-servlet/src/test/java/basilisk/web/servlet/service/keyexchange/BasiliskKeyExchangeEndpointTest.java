@@ -1,6 +1,6 @@
 package basilisk.web.servlet.service.keyexchange;
 import org.mockito.MockedStatic;
-import org.mcokito.Mockito;
+import org.mockito.Mockito;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
