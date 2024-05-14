@@ -30,21 +30,21 @@ public class BasiliskKeyExchangeEndpointTest {
 	private KeyCache keyCache;
 
     @Test //For the POST endpoint handling key Exchange
+    @Test
     public void testExchangeKey() throws Exception {
         try (MockedStatic<KeyCache> mockedKeyCache = Mockito.mockStatic(KeyCache.class)) {
             PublicKey mockPublicKey = mock(PublicKey.class);
-            mockedKeyCache.when(() -> KeyCache.getKeyForService("client")).thenReturn(mockPublicKey);    
+            mockedKeyCache.when(() -> KeyCache.getKeyForService("client")).thenReturn(mockPublicKey);
+    
             String requestBody = "{\"publicKey\":\"ClientPublicKey\"}";
     
-        //Simulates a POST request to the api/exchange-keys
-        mockMvc.perform(MockMvcRequestBuilders
-                        .post("/exchange-keys")
-                        .content(requestBody)
-                        .contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(MockMvcRequestBuilders.post("/exchange-keys")
+                    .content(requestBody)
+                    .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.serverPublicKey").exists());
         }
-    }
+    }    
     //Test method for the GET endpoint, then it expects a succesful response status. Then it verifies that the returned content matches "The data for ID: 1"
     @Test
     public void getTestData() throws Exception {
