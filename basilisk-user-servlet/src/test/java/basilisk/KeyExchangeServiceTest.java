@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -17,6 +18,7 @@ import org.springframework.http.MediaType;
 
 @WebMvcTest(KeyExchangeService.class)
 @AutoConfigureMockMvc
+@ContextConfiguration(classes = KeyExchangeService.class)
 public class KeyExchangeServiceTest {
     @Autowired
     private MockMvc mockMvc;
