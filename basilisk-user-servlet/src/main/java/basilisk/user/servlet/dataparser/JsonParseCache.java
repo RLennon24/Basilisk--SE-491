@@ -15,7 +15,7 @@ public class JsonParseCache {
 		DataUnit dataUnit = gson.fromJson(json,DataUnit.getClass());
 		
 	
-	private static String readFileAsString(String file) throws IOException {
+	private String readFileAsString(String file) throws IOException {
 		return new String (Files.readAllBytes(Paths.get(file)));
 	}
 
