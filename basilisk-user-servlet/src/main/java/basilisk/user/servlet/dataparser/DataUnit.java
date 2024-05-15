@@ -4,8 +4,20 @@ public class DataUnit{
 	private String id;
 	private String data;
 	private int ip;
-	private ArrayList<DataUnit> tags;
-	private ArrayList<DataUnit> roles;
+	private ArrayList<String> tags;
+	private ArrayList<String> roles;
+
+	public DataUnit(){
+		
+	}
+
+	public DataUnit(String id, String data, int ip, String[] tags, String[] roles){
+		this.id= id;
+		this.data=data;
+		this.ip= ip;
+		this.tags= tags;
+		this.roles= roles;
+	}
 	
 	
 	public String getId() {return id;}
