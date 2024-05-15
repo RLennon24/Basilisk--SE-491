@@ -8,4 +8,5 @@ public class BaseMessage {
     String timestamp;
     String message;
     String signature;
+    String mac;
 }

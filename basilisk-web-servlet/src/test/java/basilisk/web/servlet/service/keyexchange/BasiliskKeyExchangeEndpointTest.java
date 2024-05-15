@@ -17,7 +17,7 @@ import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(BasiliskKeyExchangeEndpoint.class)
+@WebMvcTest(KeyExchangeEndpoint.class)
 //This is to indicate that the test class is specifically for testing the BasiliskWebServletApp class
 public class BasiliskKeyExchangeEndpointTest {
 

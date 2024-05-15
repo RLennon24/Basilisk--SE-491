@@ -20,12 +20,6 @@ public class EncrypterUtil {
     private static Base64.Decoder decoder = Base64.getDecoder();
     private static SecureRandom random = new SecureRandom();
 
-    public static String encodeMessage(String message, String servletIpAddress) {
-        message = encrypt(message, KeyCache.getEncodingKeyForService(servletIpAddress));
-        message = createMac(message, KeyCache.getMacKeyForService(servletIpAddress));
-        return message;
-    }
-
     public static String decodeMessage(String hmacStr, String message, String servletIpAddress) {
         if (!checkMac(hmacStr, message, KeyCache.getMacKeyForService(servletIpAddress))) {
             throw new EncryptionException("Incorrect MAC Detected. Closing channel.");
@@ -38,9 +32,9 @@ public class EncrypterUtil {
     public static String encrypt(String message, SecretKey encodingKey) {
         try {
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            byte[] bytesIV = new byte[16];
-            random.nextBytes(bytesIV);
-            IvParameterSpec ivspec = new IvParameterSpec(bytesIV);
+            byte[] iv = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+            IvParameterSpec ivspec = new IvParameterSpec(iv);
 
             cipher.init(Cipher.ENCRYPT_MODE, encodingKey, ivspec);
             byte[] encrypted = cipher.doFinal(message.getBytes());

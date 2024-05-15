@@ -4,6 +4,7 @@ package basilisk.web.servlet.service.keyexchange;
 import basilisk.web.servlet.exception.EncryptionException;
 import basilisk.web.servlet.keygen.KeyCache;
 import basilisk.web.servlet.message.BaseMessage;
+import basilisk.web.servlet.message.BaseMessageBuilder;
 import basilisk.web.servlet.service.keyexchange.packaging.KeyPackager;
 import basilisk.web.servlet.service.keyexchange.packaging.KeyUnpackager;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,7 @@ import java.security.PublicKey;
 
 @RestController
 @RequestMapping(path = "/keyexchange", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-public class BasiliskKeyExchangeEndpoint {
+public class KeyExchangeEndpoint {
 
     @PostMapping("/publicKey")
     public ResponseEntity<BaseMessage> exchangePublicKey(@RequestBody BaseMessage transport, HttpServletRequest request) {
@@ -26,17 +27,22 @@ public class BasiliskKeyExchangeEndpoint {
             BaseMessage baseMessage = KeyPackager.generatePublicKeyTransport();
             return ResponseEntity.ok(baseMessage);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            String error = "Could not parse Public Key";
+            System.err.println(error);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BaseMessageBuilder.packMessage(error));
         }
     }
 
     @PostMapping("/symmetricKey")
-    public ResponseEntity<String> exchangeKeys(@RequestBody BaseMessage transport) {
+    public ResponseEntity<BaseMessage> exchangeKeys(@RequestBody BaseMessage transport, HttpServletRequest request) {
         try {
-            KeyUnpackager.processSymmetricKeyPackage("", transport);
-            return ResponseEntity.ok("Received Symmetric Key");
+            System.out.println("Received Request to Exchange Symmetric Keys for address: " + request.getRemoteAddr());
+            KeyUnpackager.processSymmetricKeyPackage(request.getRemoteAddr(), transport);
+            return ResponseEntity.ok(BaseMessageBuilder.packMessage("Received Keys", request.getRemoteAddr()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not receive symmetric key");
+            String error = "Could not parse Symmetric Key";
+            System.err.println(error);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BaseMessageBuilder.packMessage(error));
         }
     }
 

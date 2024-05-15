@@ -3,6 +3,7 @@ package basilisk.user.servlet.encryption;
 import basilisk.user.servlet.exception.EncryptionException;
 import basilisk.user.servlet.keygen.BasiliskUserKeyGen;
 import basilisk.user.servlet.keygen.KeyCache;
+import basilisk.user.servlet.message.BaseMessage;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
@@ -20,19 +21,12 @@ public class EncrypterUtil {
     private static Base64.Decoder decoder = Base64.getDecoder();
     private static SecureRandom random = new SecureRandom();
 
-    public static String encodeMessage(String message) {
-        message = encrypt(message, KeyCache.getEncodingKey());
-        message = createMac(message, KeyCache.getMacKey());
-        return message;
-    }
-
-    public static String decodeMessage(String hmacStr, String message) {
-        if (!checkMac(hmacStr, message, KeyCache.getMacKey())) {
+    public static String decodeMessage(BaseMessage message) {
+        if (!EncrypterUtil.checkMac(message.getMac(), message.getMessage(), KeyCache.getMacKey())) {
             throw new EncryptionException("Incorrect MAC Detected. Closing channel.");
         }
 
-        message = decrypt(message, KeyCache.getEncodingKey());
-        return message;
+        return EncrypterUtil.decrypt(message.getMessage(), KeyCache.getEncodingKey());
     }
 
     public static String encrypt(String message, SecretKey encodingKey) {
@@ -62,12 +56,13 @@ public class EncrypterUtil {
 
         try {
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            byte[] bytesIV = new byte[16];
-            random.nextBytes(bytesIV);
-            IvParameterSpec ivspec = new IvParameterSpec(bytesIV);
+            byte[] iv = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+            IvParameterSpec ivspec = new IvParameterSpec(iv);
 
             cipher.init(Cipher.DECRYPT_MODE, encodingKey, ivspec);
             byte[] decrypted = cipher.doFinal(decoder.decode(cipherText));
+
             return new String(decrypted, "UTF-8");
         } catch (Exception e) {
             throw new EncryptionException("Could not decrypt message with key");
@@ -121,13 +116,11 @@ public class EncrypterUtil {
             byte[] stringBytes = msg.getBytes();
             byte[] macBytes = mac.doFinal(stringBytes);
             String newMacStr = new String(macBytes);
-
             return macStr.equals(newMacStr);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return false;
     }
 

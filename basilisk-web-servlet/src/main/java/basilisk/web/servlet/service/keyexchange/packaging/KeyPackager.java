@@ -1,12 +1,10 @@
 package basilisk.web.servlet.service.keyexchange.packaging;
 
-import basilisk.web.servlet.encryption.EncrypterUtil;
 import basilisk.web.servlet.exception.EncryptionException;
 import basilisk.web.servlet.keygen.ServerKeyGenerator;
 import basilisk.web.servlet.message.BaseMessage;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import static basilisk.web.servlet.message.BaseMessageBuilder.packMessage;
 
 public class KeyPackager {
 
@@ -26,23 +24,5 @@ public class KeyPackager {
         }
 
         return message;
-    }
-
-    private static BaseMessage packMessage(byte[] encodedKey) {
-        try {
-            BaseMessage message = new BaseMessage();
-
-            // create string then byte array of message to be signed
-            String cipherString = EncrypterUtil.encrypt(encodedKey);
-            String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date(System.currentTimeMillis()));
-            String signature = EncrypterUtil.sign(cipherString);
-
-            message.setMessage(cipherString);
-            message.setTimestamp(timeStamp);
-            message.setSignature(signature);
-            return message;
-        } catch (Exception e) {
-            throw new EncryptionException("Could not encode message for servlet");
-        }
     }
 }
