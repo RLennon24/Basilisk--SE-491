@@ -2,16 +2,10 @@ package basilisk.web.servlet.service.keyexchange.packaging;
 
 import basilisk.web.servlet.encryption.EncrypterUtil;
 import basilisk.web.servlet.exception.EncryptionException;
-import basilisk.web.servlet.keygen.KeyCache;
 import basilisk.web.servlet.keygen.ServerKeyGenerator;
+import basilisk.web.servlet.message.BaseMessage;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 
 public class KeyPackager {
@@ -23,8 +17,8 @@ public class KeyPackager {
      *
      * @return message string to be initially sent with session key
      */
-    public static KeyPackage generatePublicKeyTransport() {
-        KeyPackage message;
+    public static BaseMessage generatePublicKeyTransport() {
+        BaseMessage message;
         try {
             message = packMessage(ServerKeyGenerator.getPublicKey().getEncoded());
         } catch (Exception e) {
@@ -34,17 +28,16 @@ public class KeyPackager {
         return message;
     }
 
-    private static KeyPackage packMessage(byte[] encodedKey) {
+    private static BaseMessage packMessage(byte[] encodedKey) {
         try {
-            KeyPackage message = new KeyPackage();
+            BaseMessage message = new BaseMessage();
 
             // create string then byte array of message to be signed
             String cipherString = EncrypterUtil.encrypt(encodedKey);
             String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date(System.currentTimeMillis()));
-            String messageForTransport = timeStamp + "\n" + cipherString;
-            String signature = EncrypterUtil.sign(messageForTransport);
+            String signature = EncrypterUtil.sign(cipherString);
 
-            message.setKey(cipherString);
+            message.setMessage(cipherString);
             message.setTimestamp(timeStamp);
             message.setSignature(signature);
             return message;

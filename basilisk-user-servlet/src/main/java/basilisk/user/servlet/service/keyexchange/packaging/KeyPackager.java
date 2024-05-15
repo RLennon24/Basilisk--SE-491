@@ -2,9 +2,9 @@ package basilisk.user.servlet.service.keyexchange.packaging;
 
 import basilisk.user.servlet.encryption.EncrypterUtil;
 import basilisk.user.servlet.exception.EncryptionException;
-import basilisk.web.servlet.encryption.EncrypterUtil;
-import basilisk.web.servlet.exception.EncryptionException;
-import basilisk.web.servlet.keygen.KeyCache;
+import basilisk.user.servlet.keygen.BasiliskUserKeyGen;
+import basilisk.user.servlet.keygen.KeyCache;
+import basilisk.user.servlet.message.BaseMessage;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -24,11 +24,10 @@ public class KeyPackager {
      *
      * @return message string to be initially sent with session key
      */
-    public static KeyPackage generatePublicKeyTransport() {
-        KeyPackage message = null;
+    public static BaseMessage generatePublicKeyTransport() {
+        BaseMessage message;
         try {
-            // TODO: get public key
-            //message = packMessage(ServerKeyGenerator.getPublicKey().getEncoded());
+            message = packMessage(BasiliskUserKeyGen.getUserPublicKey().getEncoded());
         } catch (Exception e) {
             throw new EncryptionException("Could not do key transport for servlet");
         }
@@ -43,8 +42,8 @@ public class KeyPackager {
      *
      * @return message string to be initially sent with session key
      */
-    public static KeyPackage generateSymmetricKeyTransport(String servletIpAddress) {
-        KeyPackage message = new KeyPackage();
+    public static BaseMessage generateSymmetricKeyTransport() {
+        BaseMessage message;
         try {
             // generate new session key to be sent to Bob
             KeyGenerator keyGen;
@@ -54,7 +53,7 @@ public class KeyPackager {
             SecretKey sharedKey = keyGen.generateKey();
 
             // add the session key for the cache
-            //TODO: KeyCache.addServiceSessionKey(servletIpAddress, sharedKey);
+            KeyCache.setSessionKey(sharedKey);
 
             // create string then byte array of message to be encoded
             String encodedSessionKey = EncrypterUtil.encrypt(sharedKey.getEncoded());
@@ -64,15 +63,15 @@ public class KeyPackager {
             byte[] encKey = Arrays.copyOfRange(s, 0, 32);
             SecretKeySpec macSks = new SecretKeySpec(EncrypterUtil.decrypt(EncrypterUtil.hashFunction(encodedSessionKey, "mac")), "AES");
             SecretKeySpec encSks = new SecretKeySpec(encKey, "AES");
-            // TODO: add mac and session keys to cache
-            // KeyCache.addServiceMacKey(servletIpAddress, macSks);
-            // KeyCache.addServiceEncodingKey(servletIpAddress, encSks);
+
+            KeyCache.setMacKey(macSks);
+            KeyCache.setEncodingKey(encSks);
 
             byte[] toEncode = encodedSessionKey.getBytes();
 
             // create cipher and encode message with self identifier and session key
             Cipher cipher = Cipher.getInstance("RSA");
-            // TODO: cipher.init(Cipher.ENCRYPT_MODE, KeyCache.getPublicKeyForService(servletIpAddress), random);
+            cipher.init(Cipher.ENCRYPT_MODE, KeyCache.getServerPublicKey(), random);
             byte[] cipherText = cipher.doFinal(toEncode);
 
             message = packMessage(cipherText);
@@ -83,17 +82,16 @@ public class KeyPackager {
         return message;
     }
 
-    private static KeyPackage packMessage(byte[] encodedKey) {
+    private static BaseMessage packMessage(byte[] encodedKey) {
         try {
-            KeyPackage message = new KeyPackage();
+            BaseMessage message = new BaseMessage();
 
             // create string then byte array of message to be signed
             String cipherString = EncrypterUtil.encrypt(encodedKey);
             String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date(System.currentTimeMillis()));
-            String messageForTransport = timeStamp + "\n" + cipherString;
-            String signature = EncrypterUtil.sign(messageForTransport);
+            String signature = EncrypterUtil.sign(cipherString);
 
-            message.setKey(cipherString);
+            message.setMessage(cipherString);
             message.setTimestamp(timeStamp);
             message.setSignature(signature);
             return message;

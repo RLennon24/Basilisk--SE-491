@@ -1,6 +1,4 @@
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.io.File;
+package basilisk.user.servlet.keygen;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;

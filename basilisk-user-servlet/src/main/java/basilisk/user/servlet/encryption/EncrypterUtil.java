@@ -1,8 +1,8 @@
 package basilisk.user.servlet.encryption;
 
 import basilisk.user.servlet.exception.EncryptionException;
-import basilisk.web.servlet.keygen.KeyCache;
-import basilisk.web.servlet.keygen.ServerKeyGenerator;
+import basilisk.user.servlet.keygen.BasiliskUserKeyGen;
+import basilisk.user.servlet.keygen.KeyCache;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
@@ -20,18 +20,18 @@ public class EncrypterUtil {
     private static Base64.Decoder decoder = Base64.getDecoder();
     private static SecureRandom random = new SecureRandom();
 
-    public static String encodeMessage(String message, String servletIpAddress) {
-        message = encrypt(message, KeyCache.getEncodingKeyForService(servletIpAddress));
-        message = createMac(message, KeyCache.getMacKeyForService(servletIpAddress));
+    public static String encodeMessage(String message) {
+        message = encrypt(message, KeyCache.getEncodingKey());
+        message = createMac(message, KeyCache.getMacKey());
         return message;
     }
 
-    public static String decodeMessage(String hmacStr, String message, String servletIpAddress) {
-        if (!checkMac(hmacStr, message, KeyCache.getMacKeyForService(servletIpAddress))) {
+    public static String decodeMessage(String hmacStr, String message) {
+        if (!checkMac(hmacStr, message, KeyCache.getMacKey())) {
             throw new EncryptionException("Incorrect MAC Detected. Closing channel.");
         }
 
-        message = decrypt(message, KeyCache.getEncodingKeyForService(servletIpAddress));
+        message = decrypt(message, KeyCache.getEncodingKey());
         return message;
     }
 
@@ -134,7 +134,7 @@ public class EncrypterUtil {
     public static boolean checkSignature(String signedObj, String signature) {
         try {
             Signature sign = Signature.getInstance("SHA256withRSA");
-            sign.initVerify(aliceKey);
+            sign.initVerify(KeyCache.getServerPublicKey());
             sign.update(signedObj.getBytes());
             return sign.verify(decoder.decode(signature));
         } catch (Exception e) {
@@ -149,14 +149,9 @@ public class EncrypterUtil {
             byte[] toSign = message.getBytes();
 
             Signature sign = Signature.getInstance("SHA256withRSA");
-            // TODO: get private key
-            //sign.initSign(ServerKeyGenerator.getPrivateKey());
+            sign.initSign(BasiliskUserKeyGen.getUserPrivateKey());
             sign.update(toSign);
-            String signature = EncrypterUtil.encrypt(sign.sign());
-
-            toSign = (message + "\r\n" + signature).getBytes();
-
-            return new String(toSign);
+            return EncrypterUtil.encrypt(sign.sign());
         } catch (Exception e) {
             throw new EncryptionException("Could not sign bytes");
         }

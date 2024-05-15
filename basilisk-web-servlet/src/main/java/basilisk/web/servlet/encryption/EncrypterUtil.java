@@ -131,6 +131,18 @@ public class EncrypterUtil {
         return false;
     }
 
+    public static boolean checkSignature(String serviceIp, String signedObj, String signature) {
+        try {
+            Signature sign = Signature.getInstance("SHA256withRSA");
+            sign.initVerify(KeyCache.getPublicKeyForService(serviceIp));
+            sign.update(signedObj.getBytes());
+            return sign.verify(decoder.decode(signature));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public static String sign(String message) {
         // create signature with SHA256 and RSA then sign message
         try {
