@@ -12,7 +12,7 @@ public class JsonParseCache {
 		
 		//get data --> Java Object
 		Gson gson= new Gson();
-		DataUnit dataUnit = gson.fromJson(json,DataUnit.getClass());
+		DataUnit dataUnit = gson.fromJson(json,DataUnit.class());
 		
 	
 	private String readFileAsString(String file) throws IOException {
