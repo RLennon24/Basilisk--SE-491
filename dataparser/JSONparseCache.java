@@ -4,7 +4,7 @@ public class ParsingCachingJSON {
 	Gson gson = new Gson();
   DataUnit data= new DataUnit();
 
-  String fileName= "
+  String fileName= "dataparser/JSONdata.json";
 
   
 	
