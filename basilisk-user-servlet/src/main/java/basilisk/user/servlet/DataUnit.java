@@ -1,4 +1,4 @@
-Public class DataUnit{
+public class DataUnit{
 	private String id;
 	private String data;
 	private int ip;
