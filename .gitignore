@@ -1,2 +1,4 @@
-/basilisk-web-servlet/target/
 /basilisk-user-servlet/target/
+/basilisk-web-servlet/target/
+/deps.txt
+/.vscode

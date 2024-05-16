@@ -1,44 +1,45 @@
 //The Test code for the Web Servlet. -Zach
 package basilisk.web.servlet.service.keyexchange;
 
+import basilisk.web.servlet.message.BaseMessage;
+import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import basilisk.web.servlet.keygen.KeyGenerator;
-import java.security.PublicKey;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-@WebMvcTest(BasiliskKeyExchangeEndpoint.class)
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(KeyExchangeEndpoint.class)
 //This is to indicate that the test class is specifically for testing the BasiliskWebServletApp class
 public class BasiliskKeyExchangeEndpointTest {
 
     @Autowired
-    private MockMvc mockMvc;  
+    private MockMvc mockMvc;
     //The MockMvc gives methods that can be used to test endpoints without a complete server startup
 
-    @Test 
+    @Test
     //For the POST endpoint handling key Exchange
     public void testExchangeKey() throws Exception {
-        try (MockedStatic<KeyGenerator> mockedKeyGenerator = Mockito.mockStatic(KeyGenerator.class)) {
-            PublicKey mockPublicKey = mock(PublicKey.class);
-            mockedKeyGenerator.when(KeyGenerator::getPublicKey).thenReturn(mockPublicKey);
-             //Simulates a POST request to the api/exchange-keys
+        BaseMessage message = new BaseMessage();
+        message.setMessage("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxNS4nB5Ochyob2u2d02tQGe5tNaN/YpLuyb2aZwWppAl4tPz3i6iqlGlRbHrf241kRJYPLuf4Bi+DcY+f5zuQRyY7aK0yC2FywDpw98EP3OIFlbsVwe7SkPxAZuj3owhl/JjXvFwk/CRDbsVGJZACf2Ekq2aprc/K5WjQEYWJUlzhWGe8dIvJtbNoBR+ozDJ5euXtnMgVKddR0PM60tw9mDl/mPbjNF/gz8I/hX0rlK6+HXLHWXkdl+uJjWxJo5hApkcAAdaCEAO0u+jan+a2NgCPwNaUM02hDgKc+a5dXLGg80MpGMHgvGpdqODBv/856CPbuYUNjNBZx6MLnnp6QIDAQAB");
+        message.setSignature("CVA5wVSFlK55P2dFbZ2h0kwtEDegDe7UgB5o0CeSV5rS2ggtqep6T8CaES7ymC8Zn8VcmeUYXR+w3EdD6LYNulGEFWy0gEVNMxFOmbvEkh/WzYAnv1Xn52B070RV2Saz4r4VKmGudzZmQ2tDVmqPMyoxGD5O7FPsHE/Wt+pe6w0Ugs6E7BL8R8YXzHP+6s5jg32n0rf8tny6Aojs9plDv0VeiunM94193dJW5UD4bTJrREYWf5AnTQja3Gi5OvTydQtz+1Wa5wT/twUftA46nFIQTl4MBsgoQvwDuTfgXHPk25+Unee9RatLOIKS2aGccbGJBkO0tlSSvEigSTF9kQ==");
+        message.setTimestamp(new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date(System.currentTimeMillis())));
 
-            mockMvc.perform(MockMvcRequestBuilders.post("/exchange-keys")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"publicKey\":\"examplePublicKey\"}"))
+        Gson gson = new Gson();
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/keyexchange/publicKey")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(gson.toJson(message)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.serverPublicKey").exists());
-        }
+                .andExpect(jsonPath("$.message").exists());
+
     }
 }
 

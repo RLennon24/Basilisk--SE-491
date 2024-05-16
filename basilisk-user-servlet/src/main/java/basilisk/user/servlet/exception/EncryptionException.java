@@ -1,4 +1,4 @@
-package basilisk.web.servlet.exception;
+package basilisk.user.servlet.exception;
 
 public class EncryptionException extends RuntimeException {
 
