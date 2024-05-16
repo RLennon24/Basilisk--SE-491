@@ -3,6 +3,7 @@ package basilisk.web.servlet.encryption;
 import basilisk.web.servlet.exception.EncryptionException;
 import basilisk.web.servlet.keygen.KeyCache;
 import basilisk.web.servlet.keygen.ServerKeyGenerator;
+import basilisk.web.servlet.message.BaseMessage;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
@@ -20,14 +21,14 @@ public class EncrypterUtil {
     private static Base64.Decoder decoder = Base64.getDecoder();
     private static SecureRandom random = new SecureRandom();
 
-    public static String decodeMessage(String hmacStr, String message, String servletIpAddress) {
-        if (!checkMac(hmacStr, message, KeyCache.getMacKeyForService(servletIpAddress))) {
+    public static String decodeMessage(BaseMessage message, String servletIpAddress) {
+        if (!EncrypterUtil.checkMac(message.getMac(), message.getMessage(), KeyCache.getMacKeyForService(servletIpAddress))) {
             throw new EncryptionException("Incorrect MAC Detected. Closing channel.");
         }
 
-        message = decrypt(message, KeyCache.getEncodingKeyForService(servletIpAddress));
-        return message;
+        return EncrypterUtil.decrypt(message.getMessage(), KeyCache.getEncodingKeyForService(servletIpAddress));
     }
+
 
     public static String encrypt(String message, SecretKey encodingKey) {
         try {

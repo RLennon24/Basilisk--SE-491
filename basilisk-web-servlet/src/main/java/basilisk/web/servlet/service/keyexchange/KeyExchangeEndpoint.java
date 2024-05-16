@@ -1,8 +1,6 @@
 //Below is my code for the Web Servlet - Zachary Wile
 package basilisk.web.servlet.service.keyexchange;
 
-import basilisk.web.servlet.exception.EncryptionException;
-import basilisk.web.servlet.keygen.KeyCache;
 import basilisk.web.servlet.message.BaseMessage;
 import basilisk.web.servlet.message.BaseMessageBuilder;
 import basilisk.web.servlet.service.keyexchange.packaging.KeyPackager;
@@ -10,10 +8,12 @@ import basilisk.web.servlet.service.keyexchange.packaging.KeyUnpackager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.security.PublicKey;
 
 @RestController
 @RequestMapping(path = "/keyexchange", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -43,18 +43,6 @@ public class KeyExchangeEndpoint {
             String error = "Could not parse Symmetric Key";
             System.err.println(error);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BaseMessageBuilder.packMessage(error));
-        }
-    }
-
-    @GetMapping("/data")
-    public ResponseEntity<String> getData(@RequestParam("id") String serviceIp) {
-        try {
-            PublicKey key = (PublicKey) KeyCache.getEncodingKeyForService(serviceIp); // KeyCache returns PublicKey and then cast if necessary.
-            return ResponseEntity.ok("Public key for service IP " + serviceIp + ": " + key.toString());
-        } catch (EncryptionException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
-        } catch (ClassCastException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Key type error: " + e.getMessage());
         }
     }
 }

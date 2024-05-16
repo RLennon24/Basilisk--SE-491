@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/key-exchange")
-
 public class  KeyExchangeService {
 
     @PostMapping(value = "/public-key")

@@ -1,6 +1,7 @@
 package basilisk.user.servlet.keyexchange;
 
 import basilisk.user.servlet.encryption.EncrypterUtil;
+import basilisk.user.servlet.exception.EncryptionException;
 import basilisk.user.servlet.keyexchange.packaging.KeyPackager;
 import basilisk.user.servlet.keyexchange.packaging.KeyUnpackager;
 import basilisk.user.servlet.keygen.KeyCache;
@@ -34,10 +35,9 @@ public class KeyExchangeClient {
             System.out.println("Attempting to exchange symmetric keys with the Server");
 
             BaseMessage symmetricKeyPackage = sendKeyRequest(template, "/symmetricKey", KeyPackager.generateSymmetricKeyTransport());
-            System.out.println(EncrypterUtil.decodeMessage(symmetricKeyPackage));
-            //return ResponseEntity.ok(baseMessage);
+            System.out.println("Server: " + EncrypterUtil.decodeMessage(symmetricKeyPackage));
         } catch (Exception e) {
-            //return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            throw new EncryptionException("Could not exchange keys. Closing connection");
         }
     }
 
