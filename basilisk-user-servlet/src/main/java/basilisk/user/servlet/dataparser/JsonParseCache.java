@@ -1,3 +1,4 @@
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -6,17 +7,19 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class JsonParseCache {
+	public void ParseJSON(){
 		//read in as string
-		String file= "dataparser/JSONdata.json";
-		String json= readFileAsString(file);
+		try{
+			BufferedReader reader= Files.newBufferedReader(Paths.get("basilisk-user-servlet/src/main/java/basilisk/user/servlet/dataparser/DataUnit.java"));
 		
 		//get data --> Java Object
 		Gson gson= new Gson();
-		DataUnit dataUnit = gson.fromJson(json,DataUnit.class);
+		DataUnit dataUnit = gson.fromJson(reader,DataUnit.class);
 		
-	
-	private String readFileAsString(String file) throws IOException {
-		return new String (Files.readAllBytes(Paths.get(file)));
+		}catch (Exception e) {
+			e.printStackTrace();
 	}
+		
 
+	}
 }
