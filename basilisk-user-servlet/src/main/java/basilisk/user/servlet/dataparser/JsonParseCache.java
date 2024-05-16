@@ -14,7 +14,7 @@ public class JsonParseCache {
 		//read in as string
 		try{
 			Gson gson= new Gson();
-			BufferedReader reader= Files.newBufferedReader(Paths.get("basilisk-user-servlet/src/main/java/basilisk/user/servlet/dataparser/DataUnit.java"));
+			BufferedReader reader= Files.newBufferedReader(Paths.get("basilisk-user-servlet/src/main/java/basilisk/user/servlet/dataparser/JSONdata.json"));
 			
 		//get data --> Java Object --> store in map
 		Map<String, JsonParseCache.DataUnit> map= new HashMap<String,DataUnit>();
