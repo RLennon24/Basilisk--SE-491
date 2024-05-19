@@ -76,7 +76,7 @@ public class KeyPackager {
 
             message = packMessage(cipherText);
         } catch (Exception e) {
-            throw new EncryptionException("Could not do key transport for servlet");
+            throw new EncryptionException("Could not do key transport for servlet", e);
         }
 
         return message;

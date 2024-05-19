@@ -26,7 +26,7 @@ public class KeyUnpackager {
             RSAPublicKey key = (RSAPublicKey) kf.generatePublic(keySpec);
             KeyCache.setServerPublicKey(key);
         } catch (Exception e) {
-            throw new EncryptionException("Could not unpackage shared key");
+            throw new EncryptionException("Could not unpackage shared key", e);
         }
     }
 

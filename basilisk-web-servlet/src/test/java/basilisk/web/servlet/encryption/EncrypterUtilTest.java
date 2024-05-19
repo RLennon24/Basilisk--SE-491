@@ -2,7 +2,7 @@ package basilisk.web.servlet.encryption;
 
 import junit.framework.TestCase;
 
-public class EncrypterUtilTest extends TestCase {
+public class EncrypterUtilTest {
 
     public void testEncodeMessage() {
     }

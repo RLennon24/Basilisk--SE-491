@@ -57,12 +57,13 @@ public class EncrypterUtil {
 
         try {
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            byte[] bytesIV = new byte[16];
-            random.nextBytes(bytesIV);
-            IvParameterSpec ivspec = new IvParameterSpec(bytesIV);
+            byte[] iv = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+            IvParameterSpec ivspec = new IvParameterSpec(iv);
 
             cipher.init(Cipher.DECRYPT_MODE, encodingKey, ivspec);
             byte[] decrypted = cipher.doFinal(decoder.decode(cipherText));
+
             return new String(decrypted, "UTF-8");
         } catch (Exception e) {
             throw new EncryptionException("Could not decrypt message with key");

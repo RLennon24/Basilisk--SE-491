@@ -40,7 +40,7 @@ public class BaseMessageBuilder {
             String cipherString = EncrypterUtil.encrypt(msg, KeyCache.getEncodingKey());
             String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date(System.currentTimeMillis()));
             String signature = EncrypterUtil.sign(cipherString);
-            String mac = EncrypterUtil.createMac(msg, KeyCache.getMacKey());
+            String mac = EncrypterUtil.createMac(cipherString, KeyCache.getMacKey());
 
             message.setMessage(cipherString);
             message.setTimestamp(timeStamp);

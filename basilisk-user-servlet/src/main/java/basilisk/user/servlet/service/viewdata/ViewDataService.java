@@ -3,6 +3,9 @@ package basilisk.user.servlet.service.viewdata;
 import basilisk.user.servlet.encryption.EncrypterUtil;
 import basilisk.user.servlet.message.BaseMessage;
 import basilisk.user.servlet.message.BaseMessageBuilder;
+import basilisk.user.servlet.parsing.DataUnit;
+import basilisk.user.servlet.parsing.JsonParseCache;
+import com.google.gson.Gson;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @Controller
 @RequestMapping(path = "/viewData", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -24,8 +28,7 @@ public class ViewDataService {
         try {
             System.out.println("Received Request to View Data by ID");
             String dataId = EncrypterUtil.decodeMessage(transport);
-            // TODO: get data from riley
-            BaseMessage baseMessage = null;
+            BaseMessage baseMessage = BaseMessageBuilder.encodeMessage(JsonParseCache.getById(dataId).toString());
             System.out.println("Returning Data for ID: " + dataId);
             return ResponseEntity.ok(baseMessage);
         } catch (Exception e) {
@@ -40,8 +43,12 @@ public class ViewDataService {
         try {
             System.out.println("Received Request to View Data By Role");
             String role = EncrypterUtil.decodeMessage(transport);
-            // TODO: get data from riley
-            BaseMessage baseMessage = null;
+
+            List<DataUnit> units = JsonParseCache.getByRole(role);
+            System.out.println("Found " + units + " for Role: " + role);
+
+            Gson gson = new Gson();
+            BaseMessage baseMessage = BaseMessageBuilder.encodeMessage(gson.toJson(units));
             System.out.println("Returning Data for Role: " + role);
             return ResponseEntity.ok(baseMessage);
         } catch (Exception e) {
@@ -55,10 +62,13 @@ public class ViewDataService {
     public ResponseEntity<BaseMessage> getDataByTag(@RequestBody BaseMessage transport, HttpServletRequest request) {
         try {
             System.out.println("Received Request to View Data By Tag");
-            String role = EncrypterUtil.decodeMessage(transport);
-            // TODO: get data from riley
-            BaseMessage baseMessage = null;
-            System.out.println("Returning Data for Tag: " + role);
+            String tag = EncrypterUtil.decodeMessage(transport);
+            List<DataUnit> units = JsonParseCache.getByTag(tag);
+            System.out.println("Found " + units + " for Tag: " + tag);
+
+            Gson gson = new Gson();
+            BaseMessage baseMessage = BaseMessageBuilder.encodeMessage(gson.toJson(units));
+            System.out.println("Returning Data for Tag: " + tag);
             return ResponseEntity.ok(baseMessage);
         } catch (Exception e) {
             String error = "Could not retrieve data for Tag";
