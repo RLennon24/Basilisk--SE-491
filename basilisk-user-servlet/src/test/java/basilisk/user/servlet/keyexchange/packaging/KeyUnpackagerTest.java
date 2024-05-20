@@ -1,11 +1,15 @@
 package basilisk.user.servlet.keyexchange.packaging;
 
+import basilisk.user.servlet.exception.EncryptionException;
 import basilisk.user.servlet.keygen.BasiliskUserKeyGen;
 import basilisk.user.servlet.message.BaseMessage;
 import org.junit.jupiter.api.Test;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class KeyUnpackagerTest {
 
@@ -21,5 +25,18 @@ public class KeyUnpackagerTest {
         keyMessage.setTimestamp(timeStamp);
 
         KeyUnpackager.processPublicKeyPackage(keyMessage);
+
+        keyMessage.setTimestamp("");
+        EncryptionException ex = assertThrows(EncryptionException.class, () -> {
+            KeyUnpackager.processPublicKeyPackage(keyMessage);
+        });
+        assertEquals("Could not unpackage shared key", ex.getMessage());
+
+        timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date(2020, 10, 10));
+        keyMessage.setTimestamp(timeStamp);
+        ex = assertThrows(EncryptionException.class, () -> {
+            KeyUnpackager.processPublicKeyPackage(keyMessage);
+        });
+        assertEquals("Could not unpackage shared key", ex.getMessage());
     }
 }

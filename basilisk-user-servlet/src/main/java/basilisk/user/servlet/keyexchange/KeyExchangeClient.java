@@ -18,10 +18,9 @@ import java.util.Optional;
 
 public class KeyExchangeClient {
 
-    public static void exchangePublicKey() {
+    public static void exchangePublicKey(RestTemplate template) {
         try {
             System.out.println("Sending Public Key to Web Server for Public Key Exchange");
-            RestTemplate template = new RestTemplate();
 
             // send public key to server and await for response
             BaseMessage publicKeyPackage = sendKeyRequest(template, "/publicKey", KeyPackager.generatePublicKeyTransport());

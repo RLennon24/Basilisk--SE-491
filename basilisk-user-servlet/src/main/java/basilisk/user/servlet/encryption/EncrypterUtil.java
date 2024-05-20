@@ -44,11 +44,11 @@ public class EncrypterUtil {
     }
 
     public static String encrypt(byte[] object) {
-        try {
-            return encoder.encodeToString(object);
-        } catch (Exception e) {
-            throw new EncryptionException("Could not encrypt message with key");
+        if (object == null || object.length == 0) {
+            throw new EncryptionException("Cannot encrypt null or empty message");
         }
+
+        return encoder.encodeToString(object);
     }
 
     public static String decrypt(String cipherText, SecretKey encodingKey) {
@@ -73,11 +73,7 @@ public class EncrypterUtil {
             throw new EncryptionException("Cannot decrypt null or empty message");
         }
 
-        try {
-            return decoder.decode(message);
-        } catch (Exception e) {
-            throw new EncryptionException("Cannot decrypt message");
-        }
+        return decoder.decode(message);
     }
 
     public static String createMac(String input, SecretKey macKey) {
@@ -124,6 +120,10 @@ public class EncrypterUtil {
     }
 
     public static String sign(String message) {
+        if (message == null || message.isEmpty()) {
+            throw new EncryptionException("Could not sign null or empty bytes");
+        }
+
         // create signature with SHA256 and RSA then sign message
         try {
             byte[] toSign = message.getBytes();
