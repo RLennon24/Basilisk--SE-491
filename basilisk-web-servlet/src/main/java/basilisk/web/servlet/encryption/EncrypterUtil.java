@@ -3,6 +3,7 @@ package basilisk.web.servlet.encryption;
 import basilisk.web.servlet.exception.EncryptionException;
 import basilisk.web.servlet.keygen.KeyCache;
 import basilisk.web.servlet.keygen.ServerKeyGenerator;
+import basilisk.web.servlet.message.BaseMessage;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
@@ -20,14 +21,14 @@ public class EncrypterUtil {
     private static Base64.Decoder decoder = Base64.getDecoder();
     private static SecureRandom random = new SecureRandom();
 
-    public static String decodeMessage(String hmacStr, String message, String servletIpAddress) {
-        if (!checkMac(hmacStr, message, KeyCache.getMacKeyForService(servletIpAddress))) {
+    public static String decodeMessage(BaseMessage message, String servletIpAddress) {
+        if (!EncrypterUtil.checkMac(message.getMac(), message.getMessage(), KeyCache.getMacKeyForService(servletIpAddress))) {
             throw new EncryptionException("Incorrect MAC Detected. Closing channel.");
         }
 
-        message = decrypt(message, KeyCache.getEncodingKeyForService(servletIpAddress));
-        return message;
+        return EncrypterUtil.decrypt(message.getMessage(), KeyCache.getEncodingKeyForService(servletIpAddress));
     }
+
 
     public static String encrypt(String message, SecretKey encodingKey) {
         try {
@@ -45,6 +46,10 @@ public class EncrypterUtil {
     }
 
     public static String encrypt(byte[] object) {
+        if (object == null || object.length == 0) {
+            throw new EncryptionException("Cannot encrypt null or empty message");
+        }
+
         try {
             return encoder.encodeToString(object);
         } catch (Exception e) {
@@ -56,12 +61,13 @@ public class EncrypterUtil {
 
         try {
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            byte[] bytesIV = new byte[16];
-            random.nextBytes(bytesIV);
-            IvParameterSpec ivspec = new IvParameterSpec(bytesIV);
+            byte[] iv = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+            IvParameterSpec ivspec = new IvParameterSpec(iv);
 
             cipher.init(Cipher.DECRYPT_MODE, encodingKey, ivspec);
             byte[] decrypted = cipher.doFinal(decoder.decode(cipherText));
+
             return new String(decrypted, "UTF-8");
         } catch (Exception e) {
             throw new EncryptionException("Could not decrypt message with key");
@@ -70,18 +76,6 @@ public class EncrypterUtil {
 
     public static byte[] decrypt(String message) {
         if (message == null || message.isEmpty()) {
-            throw new EncryptionException("Cannot decrypt null or empty message");
-        }
-
-        try {
-            return decoder.decode(message);
-        } catch (Exception e) {
-            throw new EncryptionException("Cannot decrypt message");
-        }
-    }
-
-    public static byte[] decrypt(byte[] message) {
-        if (message == null || message.length == 0) {
             throw new EncryptionException("Cannot decrypt null or empty message");
         }
 
@@ -138,6 +132,10 @@ public class EncrypterUtil {
     }
 
     public static String sign(String message) {
+        if (message == null || message.isEmpty()) {
+            throw new EncryptionException("Could not sign null or empty bytes");
+        }
+
         // create signature with SHA256 and RSA then sign message
         try {
             byte[] toSign = message.getBytes();
@@ -145,11 +143,7 @@ public class EncrypterUtil {
             Signature sign = Signature.getInstance("SHA256withRSA");
             sign.initSign(ServerKeyGenerator.getPrivateKey());
             sign.update(toSign);
-            String signature = EncrypterUtil.encrypt(sign.sign());
-
-            toSign = (message + "\r\n" + signature).getBytes();
-
-            return new String(toSign);
+            return EncrypterUtil.encrypt(sign.sign());
         } catch (Exception e) {
             throw new EncryptionException("Could not sign bytes");
         }

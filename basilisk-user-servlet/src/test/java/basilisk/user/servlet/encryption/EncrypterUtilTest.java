@@ -1,11 +1,11 @@
-package basilisk.web.servlet.encryption;
+package basilisk.user.servlet.encryption;
 
-import basilisk.web.servlet.exception.EncryptionException;
-import basilisk.web.servlet.keygen.KeyCache;
-import basilisk.web.servlet.keygen.ServerKeyGenerator;
-import basilisk.web.servlet.message.BaseMessage;
-import basilisk.web.servlet.message.BaseMessageBuilder;
-import basilisk.web.servlet.util.GenKeysForTestUtil;
+import basilisk.user.servlet.exception.EncryptionException;
+import basilisk.user.servlet.keyexchange.packaging.KeyPackager;
+import basilisk.user.servlet.keygen.BasiliskUserKeyGen;
+import basilisk.user.servlet.keygen.KeyCache;
+import basilisk.user.servlet.message.BaseMessage;
+import basilisk.user.servlet.message.BaseMessageBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,45 +16,46 @@ import static org.junit.jupiter.api.Assertions.*;
 public class EncrypterUtilTest {
 
     KeyPair webKp;
-    PublicKey serverPk;
+    PublicKey userPk;
 
     @BeforeEach
     public void setUp() {
-        serverPk = ServerKeyGenerator.getPublicKey();
+        BasiliskUserKeyGen.generateKeyPair();
+        userPk = BasiliskUserKeyGen.getUserPublicKey();
         try {
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
             keyGen.initialize(2048, SecureRandom.getInstanceStrong());
 
             //generate keys
             webKp = keyGen.generateKeyPair();
-            KeyCache.addServicePublicKey("test", webKp.getPublic());
+            KeyCache.setServerPublicKey(webKp.getPublic());
         } catch (Exception e) {
             System.out.println("Could not generate User Keys");
         }
 
-        GenKeysForTestUtil.generateSymmetricKeys("test");
+        KeyPackager.generateSymmetricKeyTransport();
     }
 
     @Test
     public void testDecodeMessage() {
-        BaseMessage message = BaseMessageBuilder.packMessage("test", "test");
-        message.setMac(EncrypterUtil.createMac(message.getMessage(), KeyCache.getMacKeyForService("test")));
-        String val = EncrypterUtil.decodeMessage(message, "test");
+        BaseMessage message = BaseMessageBuilder.encodeMessage("test");
+        message.setMac(EncrypterUtil.createMac(message.getMessage(), KeyCache.getMacKey()));
+        String val = EncrypterUtil.decodeMessage(message);
         assertTrue(!val.isEmpty());
     }
 
     @Test
     public void testEncryption() {
-        String encrypted = EncrypterUtil.encrypt("Test", KeyCache.getEncodingKeyForService("test"));
-        assertEquals("Test", EncrypterUtil.decrypt(encrypted, KeyCache.getEncodingKeyForService("test")));
+        String encrypted = EncrypterUtil.encrypt("Test", KeyCache.getEncodingKey());
+        assertEquals("Test", EncrypterUtil.decrypt(encrypted, KeyCache.getEncodingKey()));
 
         EncryptionException ex = assertThrows(EncryptionException.class, () -> {
-            EncrypterUtil.encrypt("Test", KeyCache.getMacKeyForService("test"));
+            EncrypterUtil.encrypt("Test", KeyCache.getMacKey());
         });
         assertEquals("Could not encrypt message with key", ex.getMessage());
 
         ex = assertThrows(EncryptionException.class, () -> {
-            EncrypterUtil.decrypt(encrypted, KeyCache.getMacKeyForService("test"));
+            EncrypterUtil.decrypt(encrypted, KeyCache.getMacKey());
         });
         assertEquals("Could not decrypt message with key", ex.getMessage());
 
@@ -84,19 +85,19 @@ public class EncrypterUtilTest {
 
     @Test
     public void testMac() {
-        String macStr = EncrypterUtil.createMac("Test", KeyCache.getMacKeyForService("test"));
-        assertTrue(EncrypterUtil.checkMac(macStr, "Test", KeyCache.getMacKeyForService("test")));
-        assertFalse(EncrypterUtil.checkMac(macStr, "Tested", KeyCache.getMacKeyForService("test")));
+        String macStr = EncrypterUtil.createMac("Test", KeyCache.getMacKey());
+        assertTrue(EncrypterUtil.checkMac(macStr, "Test", KeyCache.getMacKey()));
+        assertFalse(EncrypterUtil.checkMac(macStr, "Tested", KeyCache.getMacKey()));
     }
 
     @Test
     public void testSignature() {
-        KeyCache.addServicePublicKey("test", serverPk);
+        KeyCache.setServerPublicKey(userPk);
         String signature = EncrypterUtil.sign("Test");
-        assertTrue(EncrypterUtil.checkSignature("test", "Test", signature));
+        assertTrue(EncrypterUtil.checkSignature("Test", signature));
 
-        KeyCache.addServicePublicKey("test", webKp.getPublic());
-        assertFalse(EncrypterUtil.checkSignature("test", "Teste", signature));
+        KeyCache.setServerPublicKey(webKp.getPublic());
+        assertFalse(EncrypterUtil.checkSignature("Teste", signature));
 
         EncryptionException ex = assertThrows(EncryptionException.class, () -> {
             EncrypterUtil.sign("");

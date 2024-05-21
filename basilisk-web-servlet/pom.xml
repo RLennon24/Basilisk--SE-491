@@ -75,11 +75,14 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.27</minimum>
+                                            <minimum>0.64</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
                             </rules>
+                            <excludes>
+                                <exclude>basilisk/web/servlet/service/viewdata/*</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
                 </executions>

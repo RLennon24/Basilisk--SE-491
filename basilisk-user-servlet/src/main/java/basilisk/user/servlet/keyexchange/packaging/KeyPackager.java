@@ -43,30 +43,41 @@ public class KeyPackager {
      * @return message string to be initially sent with session key
      */
     public static BaseMessage generateSymmetricKeyTransport() {
-        BaseMessage message;
-        try {
-            // generate new session key to be sent to Bob
-            KeyGenerator keyGen;
-            keyGen = KeyGenerator.getInstance("AES");
-            SecureRandom random = new SecureRandom();
-            keyGen.init(random);
-            SecretKey sharedKey = keyGen.generateKey();
+        String encodedSessionKey;
+        SecureRandom random = new SecureRandom();
 
-            // add the session key for the cache
-            KeyCache.setSessionKey(sharedKey);
-
+        if (KeyCache.getSessionKey() != null) {
             // create string then byte array of message to be encoded
-            String encodedSessionKey = EncrypterUtil.encrypt(sharedKey.getEncoded());
+            encodedSessionKey = EncrypterUtil.encrypt(KeyCache.getSessionKey().getEncoded());
+        } else {
+            try {
+                // generate new session key to be sent to Bob
+                KeyGenerator keyGen;
+                keyGen = KeyGenerator.getInstance("AES");
+                keyGen.init(random);
+                SecretKey sharedKey = keyGen.generateKey();
 
-            // generate mac and encoding keys
-            byte[] s = EncrypterUtil.decrypt(EncrypterUtil.hashFunction(encodedSessionKey, "enc"));
-            byte[] encKey = Arrays.copyOfRange(s, 0, 32);
-            SecretKeySpec macSks = new SecretKeySpec(EncrypterUtil.decrypt(EncrypterUtil.hashFunction(encodedSessionKey, "mac")), "AES");
-            SecretKeySpec encSks = new SecretKeySpec(encKey, "AES");
+                // add the session key for the cache
+                KeyCache.setSessionKey(sharedKey);
 
-            KeyCache.setMacKey(macSks);
-            KeyCache.setEncodingKey(encSks);
+                // create string then byte array of message to be encoded
+                encodedSessionKey = EncrypterUtil.encrypt(sharedKey.getEncoded());
 
+                // generate mac and encoding keys
+                byte[] s = EncrypterUtil.decrypt(EncrypterUtil.hashFunction(encodedSessionKey, "enc"));
+                byte[] encKey = Arrays.copyOfRange(s, 0, 32);
+                SecretKeySpec macSks = new SecretKeySpec(EncrypterUtil.decrypt(EncrypterUtil.hashFunction(encodedSessionKey, "mac")), "AES");
+                SecretKeySpec encSks = new SecretKeySpec(encKey, "AES");
+
+                KeyCache.setMacKey(macSks);
+                KeyCache.setEncodingKey(encSks);
+
+            } catch (Exception e) {
+                throw new EncryptionException("Could not do key transport for servlet", e);
+            }
+        }
+
+        try {
             byte[] toEncode = encodedSessionKey.getBytes();
 
             // create cipher and encode message with self identifier and session key
@@ -74,12 +85,10 @@ public class KeyPackager {
             cipher.init(Cipher.ENCRYPT_MODE, KeyCache.getServerPublicKey(), random);
             byte[] cipherText = cipher.doFinal(toEncode);
 
-            message = packMessage(cipherText);
+            return packMessage(cipherText);
         } catch (Exception e) {
-            throw new EncryptionException("Could not do key transport for servlet");
+            throw new EncryptionException("Could not do key transport for servlet", e);
         }
-
-        return message;
     }
 
     private static BaseMessage packMessage(byte[] encodedKey) {

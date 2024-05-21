@@ -32,9 +32,8 @@ public class EncrypterUtil {
     public static String encrypt(String message, SecretKey encodingKey) {
         try {
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            byte[] bytesIV = new byte[16];
-            random.nextBytes(bytesIV);
-            IvParameterSpec ivspec = new IvParameterSpec(bytesIV);
+            byte[] iv = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+            IvParameterSpec ivspec = new IvParameterSpec(iv);
 
             cipher.init(Cipher.ENCRYPT_MODE, encodingKey, ivspec);
             byte[] encrypted = cipher.doFinal(message.getBytes());
@@ -45,11 +44,11 @@ public class EncrypterUtil {
     }
 
     public static String encrypt(byte[] object) {
-        try {
-            return encoder.encodeToString(object);
-        } catch (Exception e) {
-            throw new EncryptionException("Could not encrypt message with key");
+        if (object == null || object.length == 0) {
+            throw new EncryptionException("Cannot encrypt null or empty message");
         }
+
+        return encoder.encodeToString(object);
     }
 
     public static String decrypt(String cipherText, SecretKey encodingKey) {
@@ -74,23 +73,7 @@ public class EncrypterUtil {
             throw new EncryptionException("Cannot decrypt null or empty message");
         }
 
-        try {
-            return decoder.decode(message);
-        } catch (Exception e) {
-            throw new EncryptionException("Cannot decrypt message");
-        }
-    }
-
-    public static byte[] decrypt(byte[] message) {
-        if (message == null || message.length == 0) {
-            throw new EncryptionException("Cannot decrypt null or empty message");
-        }
-
-        try {
-            return decoder.decode(message);
-        } catch (Exception e) {
-            throw new EncryptionException("Cannot decrypt message");
-        }
+        return decoder.decode(message);
     }
 
     public static String createMac(String input, SecretKey macKey) {
@@ -137,6 +120,10 @@ public class EncrypterUtil {
     }
 
     public static String sign(String message) {
+        if (message == null || message.isEmpty()) {
+            throw new EncryptionException("Could not sign null or empty bytes");
+        }
+
         // create signature with SHA256 and RSA then sign message
         try {
             byte[] toSign = message.getBytes();

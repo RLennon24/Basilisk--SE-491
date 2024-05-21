@@ -26,7 +26,7 @@ public class KeyUnpackager {
             RSAPublicKey key = (RSAPublicKey) kf.generatePublic(keySpec);
             KeyCache.setServerPublicKey(key);
         } catch (Exception e) {
-            throw new EncryptionException("Could not unpackage shared key");
+            throw new EncryptionException("Could not unpackage shared key", e);
         }
     }
 
@@ -38,7 +38,7 @@ public class KeyUnpackager {
             throw new EncryptionException("Could not parse timestamp. Bad Message.");
         }
         Date currentTime = new Date(System.currentTimeMillis());
-        boolean isRecent = (((currentTime.getTime() - messageTime.getTime()) / (1000 * 60)) % 60) < 2;
+        boolean isRecent = Math.abs(((currentTime.getTime() - messageTime.getTime()) / (1000 * 60)) % 60) < 2;
 
         if (!isRecent) {
             throw new EncryptionException("Message Validity could not be verified. Bad message.");
