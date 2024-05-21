@@ -18,7 +18,7 @@ public class RunCfg {
     @Bean
     public void run() {
         RestTemplate template = new RestTemplate();
-        KeyExchangeClient.exchangePublicKey(template);
+        KeyExchangeClient.exchangePublicKey(template, environment.getProperty("server.keyexchange.url"));
         JsonParseCache.setPath(environment.getProperty("app.cache.path"));
         JsonParseCache.parseFiles();
     }

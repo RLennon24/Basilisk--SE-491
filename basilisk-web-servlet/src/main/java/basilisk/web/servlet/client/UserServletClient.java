@@ -1,6 +1,5 @@
 package basilisk.web.servlet.client;
 
-import basilisk.web.servlet.exception.EncryptionException;
 import basilisk.web.servlet.message.BaseMessage;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,17 +13,12 @@ import java.util.Optional;
 
 public class UserServletClient {
 
-    public static BaseMessage sendMessageToClient(BaseMessage message, String serviceAddress, String endpoint) {
-        try {
-            System.out.println("Sending message to User Server");
-            return sendRequestMessage(serviceAddress, endpoint, message);
-        } catch (Exception e) {
-            throw new EncryptionException("Could not send data. Closing connection");
-        }
+    public static BaseMessage sendMessageToClient(RestTemplate template, BaseMessage message, String serviceAddress, String endpoint) {
+        System.out.println("Sending message to User Server");
+        return sendRequestMessage(template, serviceAddress, endpoint, message);
     }
 
-    private static BaseMessage sendRequestMessage(String serviceAddress, String endpoint, BaseMessage keyTransport) {
-        RestTemplate template = new RestTemplate();
+    private static BaseMessage sendRequestMessage(RestTemplate template, String serviceAddress, String endpoint, BaseMessage keyTransport) {
         HttpEntity<BaseMessage> request = new HttpEntity<>(keyTransport, createHeaders());
         ResponseEntity<BaseMessage> responseEntity = template.postForEntity("http://" + serviceAddress + endpoint, request, BaseMessage.class);
         return Optional.ofNullable(responseEntity.getBody()).orElseThrow(() -> new IllegalArgumentException("Response cannot be null"));

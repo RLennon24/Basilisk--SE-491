@@ -2,8 +2,6 @@ package basilisk.user.servlet.parsing;
 
 import com.google.gson.Gson;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 
 import java.io.BufferedReader;
 import java.nio.file.Files;
@@ -32,9 +30,10 @@ public class JsonParseCache {
             throw new IllegalArgumentException("Could not detect local storage path");
         }
 
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         Gson gson = new Gson();
         List<DataUnit> dataFromFiles = new ArrayList<>();
-        try (Stream<Path> dataFiles = Files.list(Paths.get(path))) {
+        try (Stream<Path> dataFiles = Files.list(Paths.get(classLoader.getResource(path).toURI()))) {
             dataFiles.forEach(f -> {
                 try (BufferedReader reader = Files.newBufferedReader(f)) {
                     DataUnit dataUnit = gson.fromJson(reader, DataUnit.class);

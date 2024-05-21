@@ -46,6 +46,10 @@ public class EncrypterUtil {
     }
 
     public static String encrypt(byte[] object) {
+        if (object == null || object.length == 0) {
+            throw new EncryptionException("Cannot encrypt null or empty message");
+        }
+
         try {
             return encoder.encodeToString(object);
         } catch (Exception e) {
@@ -72,18 +76,6 @@ public class EncrypterUtil {
 
     public static byte[] decrypt(String message) {
         if (message == null || message.isEmpty()) {
-            throw new EncryptionException("Cannot decrypt null or empty message");
-        }
-
-        try {
-            return decoder.decode(message);
-        } catch (Exception e) {
-            throw new EncryptionException("Cannot decrypt message");
-        }
-    }
-
-    public static byte[] decrypt(byte[] message) {
-        if (message == null || message.length == 0) {
             throw new EncryptionException("Cannot decrypt null or empty message");
         }
 
@@ -140,6 +132,10 @@ public class EncrypterUtil {
     }
 
     public static String sign(String message) {
+        if (message == null || message.isEmpty()) {
+            throw new EncryptionException("Could not sign null or empty bytes");
+        }
+
         // create signature with SHA256 and RSA then sign message
         try {
             byte[] toSign = message.getBytes();
@@ -147,11 +143,7 @@ public class EncrypterUtil {
             Signature sign = Signature.getInstance("SHA256withRSA");
             sign.initSign(ServerKeyGenerator.getPrivateKey());
             sign.update(toSign);
-            String signature = EncrypterUtil.encrypt(sign.sign());
-
-            toSign = (message + "\r\n" + signature).getBytes();
-
-            return new String(toSign);
+            return EncrypterUtil.encrypt(sign.sign());
         } catch (Exception e) {
             throw new EncryptionException("Could not sign bytes");
         }

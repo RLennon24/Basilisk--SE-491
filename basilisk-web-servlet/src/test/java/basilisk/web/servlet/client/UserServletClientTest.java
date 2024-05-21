@@ -1,12 +1,12 @@
-package basilisk.user.servlet.keyexchange;
+package basilisk.web.servlet.client;
 
-import basilisk.user.servlet.keyexchange.packaging.KeyPackager;
-import basilisk.user.servlet.keygen.BasiliskUserKeyGen;
-import basilisk.user.servlet.keygen.KeyCache;
-import basilisk.user.servlet.message.BaseMessage;
-import basilisk.user.servlet.message.BaseMessageBuilder;
+import basilisk.web.servlet.keygen.KeyCache;
+import basilisk.web.servlet.keygen.ServerKeyGenerator;
+import basilisk.web.servlet.message.BaseMessage;
+import basilisk.web.servlet.message.BaseMessageBuilder;
+import basilisk.web.servlet.util.GenKeysForTestUtil;
 import com.google.gson.Gson;
-import org.junit.jupiter.api.Test;
+import junit.framework.TestCase;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,24 +22,23 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
-public class KeyExchangeClientTest {
+public class UserServletClientTest extends TestCase {
 
-    @Test
-    public void testExchangePublicKey() {
+    public void testSendMessageToClient() {
         RestTemplate restTemplate = new RestTemplate();
-        BasiliskUserKeyGen.generateKeyPair();
+        ServerKeyGenerator.getPublicKey();
 
         try {
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
             keyGen.initialize(2048, SecureRandom.getInstanceStrong());
 
             //generate keys
-            KeyCache.setServerPublicKey(keyGen.generateKeyPair().getPublic());
+            KeyCache.addServicePublicKey("test", keyGen.generateKeyPair().getPublic());
         } catch (Exception e) {
             System.out.println("Could not generate User Keys");
         }
 
-        KeyPackager.generateSymmetricKeyTransport();
+        GenKeysForTestUtil.generateSymmetricKeys("test");
 
         BaseMessage message = new BaseMessage();
         message.setMessage("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxNS4nB5Ochyob2u2d02tQGe5tNaN/YpLuyb2aZwWppAl4tPz3i6iqlGlRbHrf241kRJYPLuf4Bi+DcY+f5zuQRyY7aK0yC2FywDpw98EP3OIFlbsVwe7SkPxAZuj3owhl/JjXvFwk/CRDbsVGJZACf2Ekq2aprc/K5WjQEYWJUlzhWGe8dIvJtbNoBR+ozDJ5euXtnMgVKddR0PM60tw9mDl/mPbjNF/gz8I/hX0rlK6+HXLHWXkdl+uJjWxJo5hApkcAAdaCEAO0u+jan+a2NgCPwNaUM02hDgKc+a5dXLGg80MpGMHgvGpdqODBv/856CPbuYUNjNBZx6MLnnp6QIDAQAB");
@@ -47,23 +46,11 @@ public class KeyExchangeClientTest {
         message.setTimestamp(new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date(System.currentTimeMillis())));
         Gson gson = new Gson();
 
-        MockRestServiceServer mockServer =
-                MockRestServiceServer.bindTo(restTemplate).build();
-        mockServer.expect(requestTo("http://localhost:8001/keyexchange/publicKey"))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withStatus(HttpStatus.OK)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(gson.toJson(message)));
+        MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate).build();
+        mockServer.expect(requestTo("http://localhost:8001/viewData/id")).andExpect(method(HttpMethod.POST)).andRespond(withStatus(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(gson.toJson(message)));
 
-
-        BaseMessage response = BaseMessageBuilder.encodeMessage("Received");
-        mockServer.expect(requestTo("http://localhost:8001/keyexchange/symmetricKey"))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withStatus(HttpStatus.OK)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(gson.toJson(response)));
-
-        KeyExchangeClient.exchangePublicKey(restTemplate, "http://localhost:8001/keyexchange");
+        UserServletClient.sendMessageToClient(restTemplate, BaseMessageBuilder.packMessage("id", "test"),
+                "localhost:8001", "/viewData/id");
 
         mockServer.verify();
     }

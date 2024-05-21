@@ -14,7 +14,7 @@ public class JsonParseCacheTest {
 
     @BeforeAll
     public static void setUp() {
-        JsonParseCache.setPath("C:\\\\Users\\\\marce\\\\Documents\\\\School\\\\SE491\\\\basilisk\\\\basilisk-user-servlet\\\\src\\\\test\\\\resources\\\\data\\\\");
+        JsonParseCache.setPath("data");
         JsonParseCache.parseFiles();
 
         testOneUnit.setId("testOne");

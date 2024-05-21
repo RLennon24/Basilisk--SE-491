@@ -18,12 +18,12 @@ import java.util.Optional;
 
 public class KeyExchangeClient {
 
-    public static void exchangePublicKey(RestTemplate template) {
+    public static void exchangePublicKey(RestTemplate template, String keyExchangeEndpoint) {
         try {
             System.out.println("Sending Public Key to Web Server for Public Key Exchange");
 
             // send public key to server and await for response
-            BaseMessage publicKeyPackage = sendKeyRequest(template, "/publicKey", KeyPackager.generatePublicKeyTransport());
+            BaseMessage publicKeyPackage = sendKeyRequest(template, keyExchangeEndpoint + "/publicKey", KeyPackager.generatePublicKeyTransport());
             KeyUnpackager.processPublicKeyPackage(publicKeyPackage);
 
             if (KeyCache.getServerPublicKey() == null) {
@@ -33,7 +33,7 @@ public class KeyExchangeClient {
             System.out.println("Successfully exchanged public keys with the Server");
             System.out.println("Attempting to exchange symmetric keys with the Server");
 
-            BaseMessage symmetricKeyPackage = sendKeyRequest(template, "/symmetricKey", KeyPackager.generateSymmetricKeyTransport());
+            BaseMessage symmetricKeyPackage = sendKeyRequest(template, keyExchangeEndpoint + "/symmetricKey", KeyPackager.generateSymmetricKeyTransport());
             System.out.println("Server: " + EncrypterUtil.decodeMessage(symmetricKeyPackage));
         } catch (Exception e) {
             throw new EncryptionException("Could not exchange keys. Closing connection");
@@ -42,7 +42,7 @@ public class KeyExchangeClient {
 
     private static BaseMessage sendKeyRequest(RestTemplate template, String endpoint, BaseMessage keyTransport) {
         HttpEntity<BaseMessage> request = new HttpEntity<>(keyTransport, createHeaders());
-        ResponseEntity<BaseMessage> responseEntity = template.postForEntity("http://localhost:8001/keyexchange" + endpoint, request, BaseMessage.class);
+        ResponseEntity<BaseMessage> responseEntity = template.postForEntity(endpoint, request, BaseMessage.class);
         final BaseMessage keyPackage = Optional.ofNullable(responseEntity.getBody()).orElseThrow(() -> new IllegalArgumentException("Response cannot be null"));
         return keyPackage;
     }
