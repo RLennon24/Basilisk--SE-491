@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class JsonParseCacheTest {
 
@@ -38,16 +39,21 @@ public class JsonParseCacheTest {
     public void testGetByTag() {
         List<DataUnit> actualUnits = JsonParseCache.getByTag("personal");
         Assertions.assertEquals(2, actualUnits.size());
-        Assertions.assertEquals(testOneUnit, actualUnits.get(0));
-        Assertions.assertEquals(testTwoUnit, actualUnits.get(1));
+        DataUnit actualTestOne = actualUnits.stream().filter(u -> u.getId().equals("testOne")).collect(Collectors.toList()).get(0);
+        DataUnit actualTestTwo = actualUnits.stream().filter(u -> u.getId().equals("testTwo")).collect(Collectors.toList()).get(0);
+
+        Assertions.assertEquals(testOneUnit, actualTestOne);
+        Assertions.assertEquals(testTwoUnit, actualTestTwo);
     }
 
     @Test
     public void testGetByRole() {
         List<DataUnit> actualUnits = JsonParseCache.getByRole("basic");
         Assertions.assertEquals(2, actualUnits.size());
-        Assertions.assertEquals(testOneUnit, actualUnits.get(0));
-        Assertions.assertEquals(testTwoUnit, actualUnits.get(1));
+        DataUnit actualTestOne = actualUnits.stream().filter(u -> u.getId().equals("testOne")).collect(Collectors.toList()).get(0);
+        DataUnit actualTestTwo = actualUnits.stream().filter(u -> u.getId().equals("testTwo")).collect(Collectors.toList()).get(0);
+        Assertions.assertEquals(testOneUnit, actualTestOne);
+        Assertions.assertEquals(testTwoUnit, actualTestTwo);
 
         actualUnits = JsonParseCache.getByRole("government");
         Assertions.assertEquals(1, actualUnits.size());
