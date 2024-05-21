@@ -1,4 +1,4 @@
-  GNU nano 6.2                                 BasiliskServletUserControl.java                                          //This is my code for the user API Integration.
+//This is my code for the user API Integration.
 package basilisk.user.servlet;
 
 
