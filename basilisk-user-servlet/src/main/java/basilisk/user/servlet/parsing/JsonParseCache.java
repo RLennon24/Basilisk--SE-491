@@ -4,20 +4,22 @@ import com.google.gson.Gson;
 import lombok.Setter;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 public class JsonParseCache {
 
-    private static final Map<String, DataUnit> idToDataMap = new HashMap<>();
-    private static final Map<String, List<DataUnit>> tagToDataMap = new HashMap<>();
-    private static final Map<String, List<DataUnit>> roleToDataMap = new HashMap<>();
+    private static final Map<String, DataUnit> idToDataMap = new ConcurrentHashMap<>();
+    private static final Map<String, List<DataUnit>> tagToDataMap = new ConcurrentHashMap<>();
+    private static final Map<String, List<DataUnit>> roleToDataMap = new ConcurrentHashMap<>();
 
     @Setter
     static String path;
@@ -46,29 +48,7 @@ public class JsonParseCache {
             throw new RuntimeException("Could not parse data");
         }
 
-        for (DataUnit dataUnit : dataFromFiles) {
-            idToDataMap.put(dataUnit.getId(), dataUnit);
-
-            for (String tag : dataUnit.getTags()) {
-                if (tagToDataMap.containsKey(tag)) {
-                    tagToDataMap.get(tag).add(dataUnit);
-                } else {
-                    List<DataUnit> dataUnits = new ArrayList<>();
-                    dataUnits.add(dataUnit);
-                    tagToDataMap.put(tag, dataUnits);
-                }
-            }
-
-            for (String role : dataUnit.getRoles()) {
-                if (roleToDataMap.containsKey(role)) {
-                    roleToDataMap.get(role).add(dataUnit);
-                } else {
-                    List<DataUnit> dataUnits = new ArrayList<>();
-                    dataUnits.add(dataUnit);
-                    roleToDataMap.put(role, dataUnits);
-                }
-            }
-        }
+        dataFromFiles.parallelStream().forEach(JsonParseCache::insertData);
         System.out.println("Successfully cached user data");
     }
 
@@ -82,5 +62,64 @@ public class JsonParseCache {
 
     public static List<DataUnit> getByRole(String role) {
         return roleToDataMap.get(role);
+    }
+
+    public static void insertData(DataUnit dataUnit) {
+        if (idToDataMap.containsKey(dataUnit.getId()) && idToDataMap.get(dataUnit.getId()).equals(dataUnit)) {
+            return;
+        }
+
+        idToDataMap.put(dataUnit.getId(), dataUnit);
+
+        for (String tag : dataUnit.getTags()) {
+            if (tagToDataMap.containsKey(tag)) {
+                tagToDataMap.get(tag).add(dataUnit);
+            } else {
+                List<DataUnit> dataUnits = Collections.synchronizedList(new ArrayList<>());
+                dataUnits.add(dataUnit);
+                tagToDataMap.put(tag, dataUnits);
+            }
+        }
+
+        for (String role : dataUnit.getRoles()) {
+            if (roleToDataMap.containsKey(role)) {
+                roleToDataMap.get(role).add(dataUnit);
+            } else {
+                List<DataUnit> dataUnits = Collections.synchronizedList(new ArrayList<>());
+                dataUnits.add(dataUnit);
+                roleToDataMap.put(role, dataUnits);
+            }
+        }
+    }
+
+    public static void writeToFiles() {
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        File folder = null;
+        try {
+            folder = new File(classLoader.getResource(path).toURI());
+
+            if (!folder.exists() || !folder.isDirectory()) {
+                throw new RuntimeException("Storage path: " + folder.getPath() + " is not a folder/does not exist");
+            }
+
+            // delete existing data
+            File[] currFiles = folder.listFiles();
+            if (currFiles != null && currFiles.length > 0) {
+                Arrays.stream(currFiles).forEach(File::delete);
+            }
+
+            for (DataUnit unit : idToDataMap.values()) {
+                System.out.println("Storing to: " + folder.getPath() + unit.getId());
+                try (FileWriter unitFile = new FileWriter(new File(folder.getPath(), unit.getId()))) {
+                    unitFile.write(unit.toString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Completed Persistence of Data");
     }
 }

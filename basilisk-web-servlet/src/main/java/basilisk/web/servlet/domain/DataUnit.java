@@ -1,4 +1,4 @@
-package basilisk.user.servlet.parsing;
+package basilisk.web.servlet.domain;
 
 import com.google.gson.Gson;
 import lombok.Data;
