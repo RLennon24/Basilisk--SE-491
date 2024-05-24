@@ -1,6 +1,7 @@
 package basilisk.user.servlet.cfg;
 
 import basilisk.user.servlet.keyexchange.KeyExchangeClient;
+import basilisk.user.servlet.keygen.BasiliskUserKeyGen;
 import basilisk.user.servlet.parsing.JsonParseCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,7 @@ public class RunCfg {
 
     @Bean
     public void run() {
+        BasiliskUserKeyGen.generateKeyPair();
         RestTemplate template = new RestTemplate();
         KeyExchangeClient.exchangePublicKey(template, environment.getProperty("server.keyexchange.url"));
         JsonParseCache.setPath(environment.getProperty("app.cache.path"));
