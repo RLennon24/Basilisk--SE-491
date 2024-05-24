@@ -1,0 +1,11 @@
+{
+  "id": "testTwo",
+  "data": "other test data",
+  "tags": [
+    "personal",
+    "common"
+  ],
+  "roles": [
+    "basic"
+  ]
+}

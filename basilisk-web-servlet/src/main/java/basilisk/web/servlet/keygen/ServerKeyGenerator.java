@@ -2,12 +2,9 @@ package basilisk.web.servlet.keygen;
 
 import basilisk.web.servlet.exception.EncryptionException;
 
-import java.security.Key;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.SecureRandom;
+import java.security.*;
 
-public class KeyGenerator {
+public class ServerKeyGenerator {
 
     private static KeyPair keyPair;
 
@@ -22,7 +19,7 @@ public class KeyGenerator {
         }
     }
 
-    public static Key getPrivateKey() {
+    public static PrivateKey getPrivateKey() {
         if (keyPair == null) {
             generateKeyPair();
         }
@@ -30,7 +27,7 @@ public class KeyGenerator {
         return keyPair.getPrivate();
     }
 
-    public static Key getPublicKey() {
+    public static PublicKey getPublicKey() {
         if (keyPair == null) {
             generateKeyPair();
         }
