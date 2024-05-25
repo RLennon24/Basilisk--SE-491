@@ -23,6 +23,8 @@ public class JsonParseCache {
 
     @Setter
     static String path;
+    @Setter
+    static boolean isEncryptionModeEnabled;
 
     public static void parseFiles() {
         //read in as string
@@ -33,13 +35,17 @@ public class JsonParseCache {
         }
 
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        Gson gson = new Gson();
         List<DataUnit> dataFromFiles = new ArrayList<>();
+        Gson gson = new Gson();
+
         try (Stream<Path> dataFiles = Files.list(Paths.get(classLoader.getResource(path).toURI()))) {
             dataFiles.forEach(f -> {
                 try (BufferedReader reader = Files.newBufferedReader(f)) {
-                    DataUnit dataUnit = gson.fromJson(reader, DataUnit.class);
-                    dataFromFiles.add(dataUnit);
+                    if (isEncryptionModeEnabled) {
+                        dataFromFiles.add(DataUnit.fromEncryptedString(reader.readLine()));
+                    } else {
+                        dataFromFiles.add(gson.fromJson(reader, DataUnit.class));
+                    }
                 } catch (Exception e) {
                     throw new RuntimeException("Could not parse data");
                 }
@@ -72,23 +78,11 @@ public class JsonParseCache {
         idToDataMap.put(dataUnit.getId(), dataUnit);
 
         for (String tag : dataUnit.getTags()) {
-            if (tagToDataMap.containsKey(tag)) {
-                tagToDataMap.get(tag).add(dataUnit);
-            } else {
-                List<DataUnit> dataUnits = Collections.synchronizedList(new ArrayList<>());
-                dataUnits.add(dataUnit);
-                tagToDataMap.put(tag, dataUnits);
-            }
+            tagToDataMap.computeIfAbsent(tag, s -> Collections.synchronizedList(new ArrayList<>())).add(dataUnit);
         }
 
         for (String role : dataUnit.getRoles()) {
-            if (roleToDataMap.containsKey(role)) {
-                roleToDataMap.get(role).add(dataUnit);
-            } else {
-                List<DataUnit> dataUnits = Collections.synchronizedList(new ArrayList<>());
-                dataUnits.add(dataUnit);
-                roleToDataMap.put(role, dataUnits);
-            }
+            roleToDataMap.computeIfAbsent(role, s -> Collections.synchronizedList(new ArrayList<>())).add(dataUnit);
         }
     }
 
@@ -111,7 +105,7 @@ public class JsonParseCache {
             for (DataUnit unit : idToDataMap.values()) {
                 System.out.println("Storing to: " + folder.getPath() + unit.getId());
                 try (FileWriter unitFile = new FileWriter(new File(folder.getPath(), unit.getId()))) {
-                    unitFile.write(unit.toString());
+                    unitFile.write(isEncryptionModeEnabled ? unit.toEncryptedString() : unit.toString());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
