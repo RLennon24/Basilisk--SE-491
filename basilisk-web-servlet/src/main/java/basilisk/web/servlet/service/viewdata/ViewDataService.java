@@ -24,20 +24,18 @@ public class ViewDataService {
     @PostMapping(value = "/id")
     @ResponseBody
     public ResponseEntity<BaseMessage> getDataForId(@RequestBody BaseMessage transport, HttpServletRequest request) {
-        String serviceAddress = request.getRemoteAddr() + ":" + request.getRemotePort();
-
         try {
-            System.out.println("Received Request to View Data by ID for Service IP: " + serviceAddress);
-            String dataId = EncrypterUtil.decodeMessage(transport, serviceAddress);
+            System.out.println("Received Request to View Data by ID for Service IP: " + request.getRemoteAddr());
+            String dataId = EncrypterUtil.decodeMessage(transport, request.getRemoteAddr());
 
             // TODO: probably have to unpack then re-pack the request with servlet's keys
             RestTemplate template = new RestTemplate();
             BaseMessage userServletResponse = sendMessageToClient(template,
-                    BaseMessageBuilder.packMessage(dataId, serviceAddress), serviceAddress, "/viewData/id");
-            System.out.println("Returning Data for ID: " + dataId + " and Service IP " + serviceAddress);
+                    BaseMessageBuilder.packMessage(dataId, request.getRemoteAddr()), request.getRemoteAddr(), "/viewData/id");
+            System.out.println("Returning Data for ID: " + dataId + " and Service IP " + request.getRemoteAddr());
             return ResponseEntity.ok(userServletResponse);
         } catch (Exception e) {
-            String error = "Could not retrieve data for ID for Service IP: " + serviceAddress;
+            String error = "Could not retrieve data for ID for Service IP: " + request.getRemoteAddr();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BaseMessageBuilder.packMessage(error));
         }
     }
@@ -45,20 +43,18 @@ public class ViewDataService {
     @PostMapping(value = "/role")
     @ResponseBody
     public ResponseEntity<BaseMessage> getDataByRole(@RequestBody BaseMessage transport, HttpServletRequest request) {
-        String serviceAddress = request.getRemoteAddr() + ":" + request.getRemotePort();
-
         try {
-            System.out.println("Received Request to View Data By Role for Service IP: " + serviceAddress);
-            String role = EncrypterUtil.decodeMessage(transport, serviceAddress);
+            System.out.println("Received Request to View Data By Role for Service IP: " + request.getRemoteAddr());
+            String role = EncrypterUtil.decodeMessage(transport, request.getRemoteAddr());
 
             // TODO: probably have to unpack then re-pack the request with servlet's keys
             RestTemplate template = new RestTemplate();
             BaseMessage userServletResponse = sendMessageToClient(template,
-                    BaseMessageBuilder.packMessage(role, serviceAddress), serviceAddress, "/viewData/role");
-            System.out.println("Returning Data for Role: " + role + " and Service IP " + serviceAddress);
+                    BaseMessageBuilder.packMessage(role, request.getRemoteAddr()), request.getRemoteAddr(), "/viewData/role");
+            System.out.println("Returning Data for Role: " + role + " and Service IP " + request.getRemoteAddr());
             return ResponseEntity.ok(userServletResponse);
         } catch (Exception e) {
-            String error = "Could not retrieve data for Role for Service IP: " + serviceAddress;
+            String error = "Could not retrieve data for Role for Service IP: " + request.getRemoteAddr();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BaseMessageBuilder.packMessage(error));
         }
     }
@@ -66,20 +62,18 @@ public class ViewDataService {
     @PostMapping(value = "/tag")
     @ResponseBody
     public ResponseEntity<BaseMessage> getDataByTag(@RequestBody BaseMessage transport, HttpServletRequest request) {
-        String serviceAddress = request.getRemoteAddr() + ":" + request.getRemotePort();
-
         try {
-            System.out.println("Received Request to View Data By Tag for Service IP: " + serviceAddress);
-            String tag = EncrypterUtil.decodeMessage(transport, serviceAddress);
+            System.out.println("Received Request to View Data By Tag for Service IP: " + request.getRemoteAddr());
+            String tag = EncrypterUtil.decodeMessage(transport, request.getRemoteAddr());
 
             // TODO: probably have to unpack then re-pack the request with servlet's keys
             RestTemplate template = new RestTemplate();
             BaseMessage userServletResponse = sendMessageToClient(template,
-                    BaseMessageBuilder.packMessage(tag, serviceAddress), serviceAddress, "/viewData/tag");
-            System.out.println("Returning Data for Tag: " + tag + " and Service IP " + serviceAddress);
+                    BaseMessageBuilder.packMessage(tag, request.getRemoteAddr()), request.getRemoteAddr(), "/viewData/tag");
+            System.out.println("Returning Data for Tag: " + tag + " and Service IP " + request.getRemoteAddr());
             return ResponseEntity.ok(userServletResponse);
         } catch (Exception e) {
-            String error = "Could not retrieve data for Tag for Service IP: " + serviceAddress;
+            String error = "Could not retrieve data for Tag for Service IP: " + request.getRemoteAddr();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BaseMessageBuilder.packMessage(error));
         }
     }

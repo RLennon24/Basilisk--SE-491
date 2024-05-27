@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletRequest;
+
 import static basilisk.web.servlet.client.UserServletClient.sendMessageToClient;
 
 @Controller
@@ -21,14 +23,14 @@ public class ViewDataServiceTesting {
 
     @GetMapping(value = "/id/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.TEXT_PLAIN_VALUE)
     @ResponseBody
-    public ResponseEntity<BaseMessage> getDataForId(@PathVariable("id") String id) {
+    public ResponseEntity<BaseMessage> getDataForId(@PathVariable("id") String id, HttpServletRequest request) {
         try {
-            System.out.println("Received Request to View Data by ID for Service IP: 127.0.0.1:50349");
+            System.out.println("Received Request to View Data by ID for Service IP: ");
 
             RestTemplate template = new RestTemplate();
             BaseMessage userServletResponse = sendMessageToClient(template,
-                    BaseMessageBuilder.packMessage(id, "localhost:8009"), "localhost:8009", "/viewData/id");
-            System.out.println("Returning Data for ID: " + id + " and Service IP " + "localhost:8009");
+                    BaseMessageBuilder.packMessage(id, request.getRemoteAddr()), request.getRemoteAddr(), "/viewData/id");
+            System.out.println("Returning Data for ID: " + id + " and Service IP " + request.getRemoteAddr());
             return ResponseEntity.ok(userServletResponse);
         } catch (Exception e) {
             String error = "Could not retrieve data for ID for Service IP: localhost:8009";
@@ -38,15 +40,15 @@ public class ViewDataServiceTesting {
 
     @GetMapping(value = "/idStr/{id}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.TEXT_PLAIN_VALUE)
     @ResponseBody
-    public ResponseEntity<String> getDataForIdStr(@PathVariable("id") String id) {
+    public ResponseEntity<String> getDataForIdStr(@PathVariable("id") String id, HttpServletRequest request) {
         try {
-            System.out.println("Received Request to View Data by ID for Service IP: localhost:8009");
+            System.out.println("Received Request to View Data by ID for Service IP: " + request.getRemoteAddr());
 
             RestTemplate template = new RestTemplate();
             BaseMessage userServletResponse = sendMessageToClient(template,
-                    BaseMessageBuilder.packMessage(id, "localhost:8009"), "localhost:8009", "/viewData/id");
-            String decodedMessage = EncrypterUtil.decodeMessage(userServletResponse, "localhost:8009");
-            System.out.println("Returning Data for ID: " + id + " and Service IP " + "localhost:8009");
+                    BaseMessageBuilder.packMessage(id, request.getRemoteAddr()), request.getRemoteAddr(), "/viewData/id");
+            String decodedMessage = EncrypterUtil.decodeMessage(userServletResponse, request.getRemoteAddr());
+            System.out.println("Returning Data for ID: " + id + " and Service IP " + request.getRemoteAddr());
             return ResponseEntity.ok(decodedMessage);
         } catch (Exception e) {
             String error = "Could not retrieve data for ID for Service IP: localhost:8009";
@@ -56,15 +58,15 @@ public class ViewDataServiceTesting {
 
     @GetMapping(value = "/role/{role}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.TEXT_PLAIN_VALUE)
     @ResponseBody
-    public ResponseEntity<String> getDataByRole(@PathVariable("role") String role) {
+    public ResponseEntity<String> getDataByRole(@PathVariable("role") String role, HttpServletRequest request) {
         try {
-            System.out.println("Received Request to View Data By Role for Service IP: localhost:8009");
+            System.out.println("Received Request to View Data By Role for Service IP: " + request.getRemoteAddr());
 
             RestTemplate template = new RestTemplate();
             BaseMessage userServletResponse = sendMessageToClient(template,
-                    BaseMessageBuilder.packMessage(role, "localhost:8009"), "localhost:8009", "/viewData/role");
-            String decodedMessage = EncrypterUtil.decodeMessage(userServletResponse, "localhost:8009");
-            System.out.println("Returning Data for Role: " + role + " and Service IP " + "localhost:8009");
+                    BaseMessageBuilder.packMessage(role, request.getRemoteAddr()), request.getRemoteAddr(), "/viewData/role");
+            String decodedMessage = EncrypterUtil.decodeMessage(userServletResponse, request.getRemoteAddr());
+            System.out.println("Returning Data for Role: " + role + " and Service IP " + request.getRemoteAddr());
             return ResponseEntity.ok(decodedMessage);
         } catch (Exception e) {
             String error = "Could not retrieve data for Role for Service IP: localhost:8009";
@@ -74,15 +76,15 @@ public class ViewDataServiceTesting {
 
     @GetMapping(value = "/tag/{tag}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.TEXT_PLAIN_VALUE)
     @ResponseBody
-    public ResponseEntity<String> getDataByTag(@PathVariable("tag") String tag) {
+    public ResponseEntity<String> getDataByTag(@PathVariable("tag") String tag, HttpServletRequest request) {
         try {
-            System.out.println("Received Request to View Data By Tag for Service IP: localhost:8009");
+            System.out.println("Received Request to View Data By Tag for Service IP: " + request.getRemoteAddr());
 
             RestTemplate template = new RestTemplate();
             BaseMessage userServletResponse = sendMessageToClient(template,
-                    BaseMessageBuilder.packMessage(tag, "localhost:8009"), "localhost:8009", "/viewData/tag");
-            String decodedMessage = EncrypterUtil.decodeMessage(userServletResponse, "localhost:8009");
-            System.out.println("Returning Data for Tag: " + tag + " and Service IP " + "localhost:8009");
+                    BaseMessageBuilder.packMessage(tag, request.getRemoteAddr()), request.getRemoteAddr(), "/viewData/tag");
+            String decodedMessage = EncrypterUtil.decodeMessage(userServletResponse, request.getRemoteAddr());
+            System.out.println("Returning Data for Tag: " + tag + " and Service IP " + request.getRemoteAddr());
             return ResponseEntity.ok(decodedMessage);
         } catch (Exception e) {
             String error = "Could not retrieve data for Tag for Service IP: localhost:8009";

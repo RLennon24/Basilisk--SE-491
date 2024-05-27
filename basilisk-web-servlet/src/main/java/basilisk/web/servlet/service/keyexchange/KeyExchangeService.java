@@ -22,9 +22,8 @@ public class KeyExchangeService {
     @PostMapping("/publicKey")
     public ResponseEntity<BaseMessage> exchangePublicKey(@RequestBody BaseMessage transport, HttpServletRequest request) {
         try {
-            System.out.println("Received Request to Exchange Public Keys for address: " + request.getRemoteAddr() + ":" + request.getRemotePort());
-            //KeyUnpackager.processPublicKeyPackage(request.getRemoteAddr() + ":" + request.getRemotePort(), transport);
-            KeyUnpackager.processPublicKeyPackage("localhost:8009", transport);
+            System.out.println("Received Request to Exchange Public Keys for address: " + request.getRemoteAddr());
+            KeyUnpackager.processPublicKeyPackage(request.getRemoteAddr(), transport);
             BaseMessage baseMessage = KeyPackager.generatePublicKeyTransport();
             return ResponseEntity.ok(baseMessage);
         } catch (Exception e) {
@@ -37,11 +36,9 @@ public class KeyExchangeService {
     @PostMapping("/symmetricKey")
     public ResponseEntity<BaseMessage> exchangeKeys(@RequestBody BaseMessage transport, HttpServletRequest request) {
         try {
-            System.out.println("Received Request to Exchange Symmetric Keys for address: " + request.getRemoteAddr() + ":" + request.getRemotePort());
-            //KeyUnpackager.processSymmetricKeyPackage(request.getRemoteAddr() + ":" + request.getRemotePort(), transport);
-            //return ResponseEntity.ok(BaseMessageBuilder.packMessage("Received Keys", request.getRemoteAddr() + ":" + request.getRemotePort()));
-            KeyUnpackager.processSymmetricKeyPackage("localhost:8009", transport);
-            return ResponseEntity.ok(BaseMessageBuilder.packMessage("Received Keys", "localhost:8009"));
+            System.out.println("Received Request to Exchange Symmetric Keys for address: " + request.getRemoteAddr());
+            KeyUnpackager.processSymmetricKeyPackage(request.getRemoteAddr(), transport);
+            return ResponseEntity.ok(BaseMessageBuilder.packMessage("Received Keys", request.getRemoteAddr()));
         } catch (Exception e) {
             String error = "Could not parse Symmetric Key";
             System.err.println(error);
