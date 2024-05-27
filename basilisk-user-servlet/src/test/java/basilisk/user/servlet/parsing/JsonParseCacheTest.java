@@ -1,13 +1,16 @@
 package basilisk.user.servlet.parsing;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import basilisk.user.servlet.keygen.BasiliskUserKeyGen;
+import org.junit.jupiter.api.*;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@TestMethodOrder(MethodOrderer.MethodName.class)
 public class JsonParseCacheTest {
 
     static DataUnit testOneUnit = new DataUnit();
@@ -15,7 +18,8 @@ public class JsonParseCacheTest {
 
     @BeforeAll
     public static void setUp() {
-        JsonParseCache.setPath("data");
+        BasiliskUserKeyGen.generateKeyPair();
+        JsonParseCache.setPath("data" + File.separator + "basic");
         JsonParseCache.parseFiles();
 
         testOneUnit.setId("testOne");
@@ -58,5 +62,41 @@ public class JsonParseCacheTest {
         actualUnits = JsonParseCache.getByRole("government");
         Assertions.assertEquals(1, actualUnits.size());
         Assertions.assertEquals(testOneUnit, actualUnits.get(0));
+    }
+
+    @Test
+    public void testInsertData() {
+        DataUnit originalUnit = new DataUnit();
+        originalUnit.setId("id");
+        originalUnit.setData("data");
+        originalUnit.setTags(Collections.singletonList("tag"));
+        originalUnit.setRoles(Arrays.asList("role1", "role2"));
+
+        JsonParseCache.insertData(originalUnit);
+        DataUnit actualUnit = JsonParseCache.getById("id");
+        Assertions.assertEquals(originalUnit, actualUnit);
+    }
+
+    @Test
+    public void testWriteToFiles() {
+        JsonParseCache.writeToFiles();
+
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        File folder = null;
+        try {
+            folder = new File(classLoader.getResource("data" + File.separator + "basic").toURI());
+            if (!folder.exists() || !folder.isDirectory()) {
+                throw new RuntimeException("Storage path: " + folder.getPath() + " is not a folder/does not exist");
+            }
+
+            // delete existing data
+            File[] currFiles = folder.listFiles();
+
+            Assertions.assertNotNull(currFiles);
+            Assertions.assertEquals(3, currFiles.length);
+            Arrays.stream(currFiles).filter(f -> f.getName().equals("id")).forEach(File::delete);
+        } catch (URISyntaxException e) {
+            Assertions.fail();
+        }
     }
 }

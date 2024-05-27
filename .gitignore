@@ -2,3 +2,5 @@
 /basilisk-web-servlet/target/
 /deps.txt
 /.vscode
+/package-lock.json
+/node_modules
