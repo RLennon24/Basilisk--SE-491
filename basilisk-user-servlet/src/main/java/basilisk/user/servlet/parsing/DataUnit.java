@@ -9,6 +9,9 @@ import java.util.List;
 public class DataUnit {
     private String id;
     private String data;
+    private String name;
+    private String dataCreator;
+    private String timestamp= String.valueOf(System.currentTimeMillis());
     private List<String> tags;
     private List<String> roles;
 
