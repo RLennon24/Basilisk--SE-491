@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.security.KeyPairGenerator;
 import java.security.SecureRandom;
 
+import static basilisk.web.servlet.service.keyexchange.KeyExchangeService.DATA_OWNER_HEADER;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -34,7 +35,7 @@ public class ViewDataServiceTest {
             keyGen.initialize(2048, SecureRandom.getInstanceStrong());
 
             //generate keys
-            KeyCache.addServicePublicKey("127.0.0.1:80", keyGen.generateKeyPair().getPublic());
+            KeyCache.addServicePublicKey("127.0.0.1:80","", keyGen.generateKeyPair().getPublic());
         } catch (Exception e) {
             System.out.println("Could not generate User Keys");
         }
@@ -49,6 +50,7 @@ public class ViewDataServiceTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/viewData/id")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .header(DATA_OWNER_HEADER, "127.0.0.1:80")
                         .content(gson.toJson(message)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").exists());
@@ -61,6 +63,7 @@ public class ViewDataServiceTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/viewData/role")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .header(DATA_OWNER_HEADER, "127.0.0.1:80")
                         .content(gson.toJson(message)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").exists());
@@ -73,6 +76,7 @@ public class ViewDataServiceTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/viewData/tag")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .header(DATA_OWNER_HEADER, "127.0.0.1:80")
                         .content(gson.toJson(message)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").exists());

@@ -81,7 +81,9 @@
                                 </rule>
                             </rules>
                             <excludes>
-                                <exclude>basilisk/web/servlet/service/viewdata/*</exclude>
+                                <exclude>**/cfg/*</exclude>
+                                <exclude>**/BasiliskWebServletApp.*</exclude>
+                                <exclude>**/ViewData*</exclude>
                             </excludes>
                         </configuration>
                     </execution>

@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletRequest;
 
 import static basilisk.web.servlet.client.UserServletClient.sendMessageToClient;
+import static basilisk.web.servlet.service.keyexchange.KeyExchangeService.DATA_OWNER_HEADER;
 
 @Controller
 @RequestMapping(path = "/viewData", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -25,15 +26,16 @@ public class ViewDataServiceTesting {
     @ResponseBody
     public ResponseEntity<BaseMessage> getDataForId(@PathVariable("id") String id, HttpServletRequest request) {
         try {
-            System.out.println("Received Request to View Data by ID for Service IP: ");
+            System.out.println("Received Request to View Data by ID for Owner: " + request.getHeader(DATA_OWNER_HEADER));
 
             RestTemplate template = new RestTemplate();
             BaseMessage userServletResponse = sendMessageToClient(template,
-                    BaseMessageBuilder.packMessage(id, request.getRemoteAddr()), request.getRemoteAddr(), "/viewData/id");
-            System.out.println("Returning Data for ID: " + id + " and Service IP " + request.getRemoteAddr());
+                    BaseMessageBuilder.packMessage(id, request.getHeader(DATA_OWNER_HEADER)),
+                    request.getHeader(DATA_OWNER_HEADER), "/viewData/id");
+            System.out.println("Returning Data for Owner: " + request.getHeader(DATA_OWNER_HEADER));
             return ResponseEntity.ok(userServletResponse);
         } catch (Exception e) {
-            String error = "Could not retrieve data for ID for Service IP: localhost:8009";
+            String error = "Could not retrieve data for ID for Owner: " + request.getHeader(DATA_OWNER_HEADER);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(BaseMessageBuilder.packMessage(error));
         }
     }
@@ -42,16 +44,17 @@ public class ViewDataServiceTesting {
     @ResponseBody
     public ResponseEntity<String> getDataForIdStr(@PathVariable("id") String id, HttpServletRequest request) {
         try {
-            System.out.println("Received Request to View Data by ID for Service IP: " + request.getRemoteAddr());
+            System.out.println("Received Request to View Data by ID for Owner: " + request.getHeader(DATA_OWNER_HEADER));
 
             RestTemplate template = new RestTemplate();
             BaseMessage userServletResponse = sendMessageToClient(template,
-                    BaseMessageBuilder.packMessage(id, request.getRemoteAddr()), request.getRemoteAddr(), "/viewData/id");
-            String decodedMessage = EncrypterUtil.decodeMessage(userServletResponse, request.getRemoteAddr());
-            System.out.println("Returning Data for ID: " + id + " and Service IP " + request.getRemoteAddr());
+                    BaseMessageBuilder.packMessage(id, request.getHeader(DATA_OWNER_HEADER)),
+                    request.getHeader(DATA_OWNER_HEADER), "/viewData/id");
+            String decodedMessage = EncrypterUtil.decodeMessage(userServletResponse, request.getHeader(DATA_OWNER_HEADER));
+            System.out.println("Returning Data for Owner: " + request.getHeader(DATA_OWNER_HEADER));
             return ResponseEntity.ok(decodedMessage);
         } catch (Exception e) {
-            String error = "Could not retrieve data for ID for Service IP: localhost:8009";
+            String error = "Could not retrieve data for ID for Owner: " + request.getHeader(DATA_OWNER_HEADER);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
@@ -60,16 +63,17 @@ public class ViewDataServiceTesting {
     @ResponseBody
     public ResponseEntity<String> getDataByRole(@PathVariable("role") String role, HttpServletRequest request) {
         try {
-            System.out.println("Received Request to View Data By Role for Service IP: " + request.getRemoteAddr());
+            System.out.println("Received Request to View Data By Role for Owner: " + request.getHeader(DATA_OWNER_HEADER));
 
             RestTemplate template = new RestTemplate();
             BaseMessage userServletResponse = sendMessageToClient(template,
-                    BaseMessageBuilder.packMessage(role, request.getRemoteAddr()), request.getRemoteAddr(), "/viewData/role");
-            String decodedMessage = EncrypterUtil.decodeMessage(userServletResponse, request.getRemoteAddr());
-            System.out.println("Returning Data for Role: " + role + " and Service IP " + request.getRemoteAddr());
+                    BaseMessageBuilder.packMessage(role, request.getHeader(DATA_OWNER_HEADER)),
+                    request.getHeader(DATA_OWNER_HEADER), "/viewData/role");
+            String decodedMessage = EncrypterUtil.decodeMessage(userServletResponse, request.getHeader(DATA_OWNER_HEADER));
+            System.out.println("Returning Data for Owner: " + request.getHeader(DATA_OWNER_HEADER));
             return ResponseEntity.ok(decodedMessage);
         } catch (Exception e) {
-            String error = "Could not retrieve data for Role for Service IP: localhost:8009";
+            String error = "Could not retrieve data for Role for Owner: " + request.getHeader(DATA_OWNER_HEADER);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
@@ -78,16 +82,17 @@ public class ViewDataServiceTesting {
     @ResponseBody
     public ResponseEntity<String> getDataByTag(@PathVariable("tag") String tag, HttpServletRequest request) {
         try {
-            System.out.println("Received Request to View Data By Tag for Service IP: " + request.getRemoteAddr());
+            System.out.println("Received Request to View Data By Tag for Owner: " + request.getHeader(DATA_OWNER_HEADER));
 
             RestTemplate template = new RestTemplate();
             BaseMessage userServletResponse = sendMessageToClient(template,
-                    BaseMessageBuilder.packMessage(tag, request.getRemoteAddr()), request.getRemoteAddr(), "/viewData/tag");
-            String decodedMessage = EncrypterUtil.decodeMessage(userServletResponse, request.getRemoteAddr());
-            System.out.println("Returning Data for Tag: " + tag + " and Service IP " + request.getRemoteAddr());
+                    BaseMessageBuilder.packMessage(tag, request.getHeader(DATA_OWNER_HEADER)),
+                    request.getHeader(DATA_OWNER_HEADER), "/viewData/tag");
+            String decodedMessage = EncrypterUtil.decodeMessage(userServletResponse, request.getHeader(DATA_OWNER_HEADER));
+            System.out.println("Returning Data for Owner: " + request.getHeader(DATA_OWNER_HEADER));
             return ResponseEntity.ok(decodedMessage);
         } catch (Exception e) {
-            String error = "Could not retrieve data for Tag for Service IP: localhost:8009";
+            String error = "Could not retrieve data for Tag for Owner: " + request.getHeader(DATA_OWNER_HEADER);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
