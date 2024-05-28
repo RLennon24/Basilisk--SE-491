@@ -27,7 +27,7 @@ public class EncrypterUtilTest {
 
             //generate keys
             webKp = keyGen.generateKeyPair();
-            KeyCache.addServicePublicKey("test", webKp.getPublic());
+            KeyCache.addServicePublicKey("test", "", webKp.getPublic());
         } catch (Exception e) {
             System.out.println("Could not generate User Keys");
         }
@@ -91,11 +91,11 @@ public class EncrypterUtilTest {
 
     @Test
     public void testSignature() {
-        KeyCache.addServicePublicKey("test", serverPk);
+        KeyCache.addServicePublicKey("test", "", serverPk);
         String signature = EncrypterUtil.sign("Test");
         assertTrue(EncrypterUtil.checkSignature("test", "Test", signature));
 
-        KeyCache.addServicePublicKey("test", webKp.getPublic());
+        KeyCache.addServicePublicKey("test", "", webKp.getPublic());
         assertFalse(EncrypterUtil.checkSignature("test", "Teste", signature));
 
         EncryptionException ex = assertThrows(EncryptionException.class, () -> {

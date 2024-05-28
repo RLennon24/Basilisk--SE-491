@@ -18,10 +18,10 @@ import java.util.Date;
 
 public class KeyUnpackager {
 
-    public static void processPublicKeyPackage(String serviceIp, BaseMessage transport) {
+    public static void processPublicKeyPackage(String owner, String ownerIp, BaseMessage transport) {
         try {
             checkMessageIsValid(transport);
-            System.out.println("Unpackaging Public Keys for address: " + serviceIp);
+            System.out.println("Unpackaging Public Keys for owner: " + owner);
 
             String publicKey = transport.getMessage();
             byte[] decodedKey = EncrypterUtil.decrypt(publicKey);
@@ -29,18 +29,18 @@ public class KeyUnpackager {
             KeyFactory kf = KeyFactory.getInstance("RSA");
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decodedKey);
             RSAPublicKey key = (RSAPublicKey) kf.generatePublic(keySpec);
-            KeyCache.addServicePublicKey(serviceIp, key);
-            System.out.println("Unpackaged and Stored Public Key for address: " + serviceIp);
+            KeyCache.addServicePublicKey(owner, ownerIp, key);
+            System.out.println("Unpackaged and Stored Public Key for owner: " + owner);
 
         } catch (Exception e) {
-            throw new EncryptionException("Could not unpackage public keys for address: " + serviceIp);
+            throw new EncryptionException("Could not unpackage public keys for owner: " + owner);
         }
     }
 
-    public static void processSymmetricKeyPackage(String serviceIp, BaseMessage transport) {
+    public static void processSymmetricKeyPackage(String owner, BaseMessage transport) {
         try {
             checkMessageIsValid(transport);
-            System.out.println("Unpackaging Symmetric Keys for address: " + serviceIp);
+            System.out.println("Unpackaging Symmetric Keys for owner: " + owner);
 
             Cipher cipher = Cipher.getInstance("RSA");
             cipher.init(Cipher.DECRYPT_MODE, ServerKeyGenerator.getPrivateKey());
@@ -49,21 +49,21 @@ public class KeyUnpackager {
 
             byte[] decodedKey = EncrypterUtil.decrypt(sessionKey);
             SecretKeySpec sks = new SecretKeySpec(decodedKey, "AES");
-            KeyCache.addServiceSessionKey(serviceIp, sks);
-            System.out.println("Stored Session Key for address: " + serviceIp);
+            KeyCache.addServiceSessionKey(owner, sks);
+            System.out.println("Stored Session Key for owner: " + owner);
 
             byte[] s = EncrypterUtil.decrypt(EncrypterUtil.hashFunction(sessionKey, "enc"));
             byte[] decKey = Arrays.copyOfRange(s, 0, 32);
             SecretKeySpec macSks = new SecretKeySpec(EncrypterUtil.decrypt(EncrypterUtil.hashFunction(sessionKey, "mac")), "AES");
             SecretKeySpec decSks = new SecretKeySpec(decKey, "AES");
-            KeyCache.addServiceMacKey(serviceIp, macSks);
-            KeyCache.addServiceEncodingKey(serviceIp, decSks);
-            System.out.println("Stored Mac and Encoding Keys for address: " + serviceIp);
+            KeyCache.addServiceMacKey(owner, macSks);
+            KeyCache.addServiceEncodingKey(owner, decSks);
+            System.out.println("Stored Mac and Encoding Keys for address: " + owner);
 
-            System.out.println("Successfully Unpackaged Symmetric Keys for address: " + serviceIp);
+            System.out.println("Successfully Unpackaged Symmetric Keys for owner: " + owner);
 
         } catch (Exception e) {
-            throw new EncryptionException("Could not unpackage symmetric keys for address: " + serviceIp);
+            throw new EncryptionException("Could not unpackage symmetric keys for owner: " + owner);
         }
     }
 
