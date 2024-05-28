@@ -10,6 +10,10 @@ public class KeyRing {
 
     @Getter
     private final PublicKey publicKey;
+    @Getter
+    private final String owner;
+    @Getter
+    private final String ownerIp;
     @Getter @Setter
     private SecretKey sessionKey;
     @Getter @Setter
@@ -17,7 +21,9 @@ public class KeyRing {
     @Getter @Setter
     private SecretKey encodingKey;
 
-    public KeyRing(PublicKey publicKey) {
+    public KeyRing(String owner, String ownerIp, PublicKey publicKey) {
+        this.owner = owner;
+        this.ownerIp = ownerIp;
         this.publicKey = publicKey;
     }
 

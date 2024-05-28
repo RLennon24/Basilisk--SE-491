@@ -25,7 +25,7 @@ public class RunCfg {
     public void run() {
         BasiliskUserKeyGen.generateKeyPair();
         RestTemplate template = new RestTemplate();
-        KeyExchangeClient.exchangePublicKey(template, environment.getProperty("server.keyexchange.url"));
+        KeyExchangeClient.exchangePublicKey(template, environment.getProperty("account.owner"), environment.getProperty("server.keyexchange.url"));
 
         boolean isEncryptionModeEnabled = environment.getProperty("app.encryption.mode", boolean.class);
         String fullFolderPath = environment.getProperty("app.cache.path") + File.separator + (isEncryptionModeEnabled ? ENCRYPTED_DATA_FOLDER : BASIC_DATA_FOLDER);

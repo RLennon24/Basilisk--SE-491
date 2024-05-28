@@ -6,7 +6,7 @@ import basilisk.web.servlet.message.BaseMessage;
 import basilisk.web.servlet.message.BaseMessageBuilder;
 import basilisk.web.servlet.util.GenKeysForTestUtil;
 import com.google.gson.Gson;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,8 +22,9 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
-public class UserServletClientTest extends TestCase {
+public class UserServletClientTest {
 
+    @Test
     public void testSendMessageToClient() {
         RestTemplate restTemplate = new RestTemplate();
         ServerKeyGenerator.getPublicKey();
@@ -33,7 +34,7 @@ public class UserServletClientTest extends TestCase {
             keyGen.initialize(2048, SecureRandom.getInstanceStrong());
 
             //generate keys
-            KeyCache.addServicePublicKey("test", keyGen.generateKeyPair().getPublic());
+            KeyCache.addServicePublicKey("test", "localhost", keyGen.generateKeyPair().getPublic());
         } catch (Exception e) {
             System.out.println("Could not generate User Keys");
         }
@@ -47,10 +48,10 @@ public class UserServletClientTest extends TestCase {
         Gson gson = new Gson();
 
         MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate).build();
-        mockServer.expect(requestTo("http://localhost:8001/viewData/id")).andExpect(method(HttpMethod.POST)).andRespond(withStatus(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(gson.toJson(message)));
+        mockServer.expect(requestTo("http://localhost:8009/viewData/id")).andExpect(method(HttpMethod.POST)).andRespond(withStatus(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(gson.toJson(message)));
 
         UserServletClient.sendMessageToClient(restTemplate, BaseMessageBuilder.packMessage("id", "test"),
-                "localhost:8001", "/viewData/id");
+                "test", "/viewData/id");
 
         mockServer.verify();
     }

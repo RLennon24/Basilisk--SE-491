@@ -21,7 +21,7 @@ public class BaseMessageBuilderTest {
             keyGen.initialize(2048, SecureRandom.getInstanceStrong());
 
             //generate keys
-            KeyCache.addServicePublicKey("test", keyGen.generateKeyPair().getPublic());
+            KeyCache.addServicePublicKey("test", "",keyGen.generateKeyPair().getPublic());
         } catch (Exception e) {
             System.out.println("Could not generate User Keys");
         }
