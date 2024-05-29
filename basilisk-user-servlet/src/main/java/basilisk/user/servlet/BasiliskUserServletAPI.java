@@ -2,19 +2,19 @@ package basilisk.user.servlet;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import basilisk.user.servlet.service.UserService;
-import basilisk.user.servlet.model.User;
+import basilisk.user.servlet.service.BasiliskUserService;
+import basilisk.user.servlet.model.BasiliskUser;
 
 @RestController
 @RequestMapping("/user")
 public class BasiliskUserServletAPI {
 
 	@Autowired
-	private UserService userService;
+	private BasiliskUserService BasiliskuserService;
 	
 	@PostMapping("/register")
-	public ResponseEntity<String> registerUser(@RequestBody User user) {
-		boolean result = userService.register(user);
+	public ResponseEntity<String> registerUser(@RequestBody BasiliskUser Basiliskuser) {
+		boolean result = BasiliskuserService.register(Basiliskuser);
 		if (result) {
 			return ResponseEntity.ok("Successfully registered this user");
 		} else {
@@ -23,7 +23,7 @@ public class BasiliskUserServletAPI {
 }
 @PostMapping("/login")
 public ResponseEntity<String> loginUser(@RequestParam String username, @RequestParam String password) {
-	boolean result = userService.login(username, password);
+	boolean result = BasiliskuserService.login(username, password);
 	if (result) {
 		return ResponseEntity.ok("Successfully logged user in");
 	} else {
@@ -32,7 +32,7 @@ public ResponseEntity<String> loginUser(@RequestParam String username, @RequestP
 }
 @GetMapping("/profile/{userId}")
 public ResponseEntity<User> getUserProfile(@PathVariable String userId) {
-	User user = userService.getUserDetails(userId);
+	BasiliskUser Basiliskuser = BasiliskuserService.getUserDetails(userId);
 	if (user != null) {
 		return ResponseEntity.ok(user);
 	} else {
