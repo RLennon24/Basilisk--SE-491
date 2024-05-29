@@ -7,7 +7,7 @@ import basilisk.user.servlet.model.User;
 
 @RestController
 @RequestMapping("/user")
-public class BasiliskWebServletAPI {
+public class BasiliskUserServletAPI {
 
 	@Autowired
 	private UserService userService;
