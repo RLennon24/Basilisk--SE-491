@@ -1,12 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Basilisk UI</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basilisk UI</title>
+</head>
+<header>
+  <h1>Basilisk Dashboard</h1>
+</header>
+<nav>
+  <ul>
+    <li><a href="#" id="dashboard-link">Dashboard</a></li>
+    <li><a href="#" id="files-link">Files</a></li>
+    <li><a href="#" id="encryption-link">Encryption</a></li>
+    <li><a href="#" id="settings-link">Settings</a></li>
+  </ul>
+</nav>
+<main>
+  {/* Content for each section */}
+  <section id="dashboard-section">
+    <h2>Dashboard</h2>
+    {/* Dashboard content goes here */}
+  </section>
+  <section id="data-lookup">
+    <h2>Data Lookup</h2>
+    <!--Send form to ViewDataService for processing--> 
+    <form action="/action_page.php">
+      Search by: 
+      <select id="lookup-type">
+        <option value="ID Lookup">ID</option>
+        <option value="Role Lookup">Role</option>
+        <option value="Tag Lookup">Tag</option>
+      </select>
+      <input type="text" id="lookup-query"/>
+      <input type="button" value="Search" onclick="LookupQuery()"/>
+    </form>
+    <script type="text/javascript">
+      function LookupQuery(){
+        var results = document.getElementById("lookup-type").value + "<br/>" +
+        document.getElementById("lookup-query").value;
+        document.getElementById("LookupResults").innerHTML = results;
+      }
+    </script>
+    <div id="LookupResults"></div>
+    </div>
+  </section>
+  <section id="files-section">
+    <h2>Files</h2>
+    {/* Files content goes here */}
+  </section>
+  <section id="encryption-section">
+    <h2>Encryption</h2>
+    {/* Encryption content goes here */}
+  </section>
+  <section id="settings-section">
+    <h2>Settings</h2>
+    {/* Settings content goes here */}
+  </section>
+</main>
+<footer>
+  <p>&copy; 2024 Basilisk</p>
+</footer>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+</body>
+
 </html>

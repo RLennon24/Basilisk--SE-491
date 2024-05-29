@@ -20,6 +20,20 @@ function BasiliskDashboard() {
                     <h2>Dashboard</h2>
                     {/* Dashboard content goes here */}
                 </section>
+                <section id = "data-lookup">
+                    <h2>Data Lookup</h2>
+                    <form action = "/action_page.php">
+                        <label for="lookup-id">Search by ID:</label>
+                        <input type="text" id="lookup-id" name="lookup-id"/>
+                        <brbr/>OR<brbr/>
+                        <label for="lookup-role">Search by Role:</label>
+                        <input type="text" id="lookup-role" name="lookup-role"/>
+                        <brbr/>OR<brbr/>
+                        <label for="lookup-tag">Search by Tag</label>
+                        <input type="text" id="lookup-tag" name="lookup-tag"/>
+                        <input type="submit" value="Submit"/>
+                    </form>
+                </section>
                 <section id="files-section">
                     <h2>Files</h2>
                     {/* Files content goes here */}
