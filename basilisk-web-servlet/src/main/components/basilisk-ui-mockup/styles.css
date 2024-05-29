@@ -24,9 +24,14 @@ nav ul li {
 main {
     padding: 1rem;
 }
-section {
-    display: none;
+section.active {
+    visibility: visible;
 }
+
+section.hidden {
+    visibility: hidden;
+}
+
 footer {
     background-color: #333;
     color: #fff;
