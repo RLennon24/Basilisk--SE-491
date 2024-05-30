@@ -37,8 +37,11 @@ public class JsonParseCache {
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         List<DataUnit> dataFromFiles = new ArrayList<>();
         Gson gson = new Gson();
+        System.out.println("Fetching files in: " + System.getProperty("user.home") + File.separator +
+                "basilisk" + File.separator + path);
 
-        try (Stream<Path> dataFiles = Files.list(Paths.get(classLoader.getResource(path).toURI()))) {
+        try (Stream<Path> dataFiles = Files.list(Paths.get(System.getProperty("user.home") + File.separator +
+                "basilisk" + File.separator + path))) {
             dataFiles.forEach(f -> {
                 try (BufferedReader reader = Files.newBufferedReader(f)) {
                     if (isEncryptionModeEnabled) {
@@ -47,7 +50,7 @@ public class JsonParseCache {
                         dataFromFiles.add(gson.fromJson(reader, DataUnit.class));
                     }
                 } catch (Exception e) {
-                    throw new RuntimeException("Could not parse data");
+                    throw new RuntimeException("Could not parse file: " + f.getFileName());
                 }
             });
         } catch (Exception e) {
