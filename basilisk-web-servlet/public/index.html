@@ -26,7 +26,6 @@
   <section id="data-lookup">
     <h2>Data Lookup</h2>
     <!--Send form to ViewDataService for processing--> 
-    <form action="/action_page.php">
       Search by: 
       <select id="lookup-type">
         <option value="ID Lookup">ID</option>
@@ -35,16 +34,34 @@
       </select>
       <input type="text" id="lookup-query"/>
       <input type="button" value="Search" onclick="LookupQuery()"/>
-    </form>
-    <script type="text/javascript">
+      <div id="LookupResults"></div>
+      </div>
+    <!--Function for retrieving data from lookup-->
+      <script type="text/javascript">
       function LookupQuery(){
-        var results = document.getElementById("lookup-type").value + "<br/>" +
-        document.getElementById("lookup-query").value;
-        document.getElementById("LookupResults").innerHTML = results;
+        var apiUrl = 'http://localhost:8001/viewData';
+        const outputElement = document.getElementById('LookupResults');
+        
+        //TODO Set up contingency in case of occupied port
+
+        //Build Lookup URL
+        var lookupType = document.getElementById('lookup-type').value;
+        if (lookupType == 'ID Lookup') {apiUrl += '/idStr/';}
+        else if (lookupType == 'Role Lookup') {apiUrl += '/role/';}
+        else {apiUrl += '/tag/';}
+        apiUrl += document.getElementById('lookup-query').value;
+        outputElement.textContent = apiUrl;
+        //Execute URL
+        fetch(apiUrl).then(response => {
+          if (!response.ok) {throw new Error('Network response was not ok');}
+          return response.json();
+        })
+        .then(data => {outputElement.textContent = JSON.stringify(data, null, 2);})
+        .catch(error => {
+          console.error('Error:', error);
+        });
       }
     </script>
-    <div id="LookupResults"></div>
-    </div>
   </section>
   <section id="files-section">
     <h2>Files</h2>
