@@ -1,18 +1,13 @@
-// src/main/components/basilisk-ui-mockup/basilisk-dashboard.js
-
-// initially made for bas-5 by maheen khan: create ui mock-up 
-
 import React, { useState } from 'react';
-import InsertRequestLogic from './InsertRequestLogic.js';
 import DynamicForm from './DynamicForm.js';
 
-// Define a component for the Basilisk Dashboard
 function BasiliskDashboard() {
     const [activeSection, setActiveSection] = useState('dashboard-section');
 
     const handleNavClick = (sectionId) => {
         setActiveSection(sectionId);
     }
+
     return (
         <div>
             <header>
@@ -29,29 +24,37 @@ function BasiliskDashboard() {
             </nav>
             <main>
                 {/* Content for each section */}
-                <section id="dashboard-section" className={activeSection === 'dashboard-section' ? 'active' : 'hidden'}>
-                    <h2>Dashboard</h2>
-                    {/* Dashboard content goes here */ }
-                </section>
-                <section id="files-section" className={activeSection === 'files-section' ? 'active' : 'hidden'}>
-                    <h2>Files</h2>
-                    {/* Files content goes here */}
-                </section>
-                <section id="encryption-section" className={activeSection === 'encryption-section' ? 'active' : 'hidden'}>
-                    <h2>Encryption</h2>
-                    {/* Insert the InsertRequestLogic component here */}
-                    <InsertRequestLogic />
-                </section>
-                <section id="settings-section" className={activeSection === 'settings-section' ? 'active' : 'hidden'}>
-                    <h2>Settings</h2>
-                    {/* Insert the DynamicForm component here */}
-                    <DynamicForm />
-                </section>
-                <section id="data-collection-section" className={activeSection === 'data-collection-section' ? 'active' : 'hidden'}>
-                    <h2>My Data Collection</h2>
-                    <div className="data-collection">
-                        {/* Render existing data items */}
-                        <div className="data-item">
+                {activeSection === 'dashboard-section' && (
+                    <section id="dashboard-section">
+                        <h2>Dashboard</h2>
+                        {/* Dashboard content goes here */}
+                    </section>
+                )}
+                {activeSection === 'files-section' && (
+                    <section id="files-section">
+                        <h2>Files</h2>
+                        {/* Files content goes here */}
+                    </section>
+                )}
+                {activeSection === 'encryption-section' && (
+                    <section id="encryption-section">
+                        <h2>Encryption</h2>
+                        {/* Insert the Encryption here */}
+                    </section>
+                )}
+                {activeSection === 'settings-section' && (
+                    <section id="settings-section">
+                        <h2>Settings</h2>
+                        {/* Insert the DynamicForm component here */}
+
+                    </section>
+                )}
+                {activeSection === 'data-collection-section' && (
+                    <section id="data-collection-section">
+                        <h2>My Data Collection</h2>
+                        <div className="data-collection">
+                            {/* Render existing data items */}
+                            <div className="data-item">
                             <h3>Facebook</h3>
                             <p>••••••••••••••••••••</p>
                             <div className="tags">
@@ -90,14 +93,14 @@ function BasiliskDashboard() {
                                 <button>Add roles</button>
                             </div>
                         </div>
-                    </div>
-                    {/* Insert the InsertRequestLogic and DynamicForm components here */}
-                    <div className="add-new-section">
-                        <h3>Add new</h3>
-                        <InsertRequestLogic />
-                        <DynamicForm />
-                    </div>
-                </section>
+                        </div>
+                        {/* Insert the DynamicForm components here */}
+                        <div className="add-new-section">
+                            <h3>Add new</h3>
+                            <DynamicForm />
+                        </div>
+                    </section>
+                )}
             </main>
             <footer>
                 <p>&copy; 2024 Basilisk</p>

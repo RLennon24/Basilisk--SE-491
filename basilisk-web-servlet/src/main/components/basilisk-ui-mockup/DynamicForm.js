@@ -1,57 +1,30 @@
 // src/main/components/basilisk-ui-mockup/DynamicForm.js
-
 import React, { useState } from 'react';
+import InsertRequestLogic from './InsertRequestLogic'; // Import the InsertRequestLogic component
 
 const DynamicForm = () => {
-  const [formFields, setFormFields] = useState([
-    { name: 'ID', label: 'ID', type: 'text', value: '' },
-    { name: 'Secret', label: 'Secret', type: 'password', value: '' },
-  ]);
+  const [formResult, setFormResult] = useState(null); // State to store the form submission result
 
-  const handleChange = (e, index) => {
-    const { name, value } = e.target;
-    const newFormFields = [...formFields];
-    newFormFields[index].value = value;
-    setFormFields(newFormFields);
+  const handleFormSubmit = (result) => {
+    setFormResult(result); // Update the form submission result in the state
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = formFields.reduce((acc, field) => {
-      acc[field.name] = field.value;
-      return acc;
-    }, {});
-    try {
-      const response = await fetch('/api/insert', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-      const result = await response.json();
-      console.log('Success:', result);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
+  const { formData, handleChange, handleSubmit } = InsertRequestLogic({ onSubmit: handleFormSubmit });
 
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        {formFields.map((field, index) => (
-          <div key={index}>
-            <label>{field.label}:</label>
-            <input
-              type={field.type}
-              name={field.name}
-              value={field.value}
-              onChange={(e) => handleChange(e, index)}
-            />
-          </div>
-        ))}
+        <div>
+          <label>ID:</label>
+          <input type="text" name="ID" value={formData.ID} onChange={handleChange} />
+        </div>
+        <div>
+          <label>Secret:</label>
+          <input type="password" name="Secret" value={formData.Secret} onChange={handleChange} />
+        </div>
         <button type="submit">Submit</button>
       </form>
+      {formResult && <p>Form submitted successfully!</p>} {/* Render a message if form submission was successful */}
     </div>
   );
 };

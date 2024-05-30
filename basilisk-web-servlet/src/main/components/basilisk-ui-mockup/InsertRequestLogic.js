@@ -2,10 +2,12 @@
 
 import React, { useState } from 'react';
 
-const InsertRequestLogic = () => {
+const API = 'http://localhost:8001/insert';
+
+const InsertRequestLogic = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
     ID: '',
-    secret: ''
+    Secret: ''
   });
 
   const handleChange = (e) => {
@@ -19,7 +21,7 @@ const InsertRequestLogic = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/insert', {
+      const response = await fetch(API, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -27,27 +29,18 @@ const InsertRequestLogic = () => {
         body: JSON.stringify(formData)
       });
       const result = await response.json();
-      console.log('Success:', result);
+      onSubmit(result); // Pass the result to the parent component (DynamicForm)
     } catch (error) {
       console.error('Error:', error);
     }
   };
 
-  return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>ID:</label>
-          <input type="text" name="ID" value={formData.ID} onChange={handleChange} />
-        </div>
-        <div>
-          <label>Secret:</label>
-          <input type="password" name="Secret" value={formData.password} onChange={handleChange} />
-        </div>
-        <button type="submit">Submit</button>
-      </form>
-    </div>
-  );
+  // InsertRequestLogic doesn't return HTML directly
+  return {
+    formData,
+    handleChange,
+    handleSubmit
+  };
 };
 
 export default InsertRequestLogic;
