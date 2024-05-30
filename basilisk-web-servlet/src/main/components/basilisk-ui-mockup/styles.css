@@ -24,15 +24,19 @@ nav ul li {
 main {
     padding: 1rem;
 }
-section {
-    display: none;
+section.active {
+    visibility: visible;
 }
+
+section.hidden {
+    visibility: hidden;
+}
+
 footer {
     background-color: #333;
     color: #fff;
     padding: 1rem;
     text-align: center;
-    position: fixed;
+    position: sticky;
     bottom: 0;
-    width: 100%;
 }
