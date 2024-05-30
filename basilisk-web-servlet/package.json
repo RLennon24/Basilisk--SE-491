@@ -2,7 +2,7 @@
   "name": "basilisk-ui",
   "version": "1.0.0",
   "description": "Basilisk UI mockup",
-  "main": "index.js",
+  "main": "src/main/components/basilisk-ui-mockup/index.js",
   "scripts": {
     "start": "react-scripts start"
   },
