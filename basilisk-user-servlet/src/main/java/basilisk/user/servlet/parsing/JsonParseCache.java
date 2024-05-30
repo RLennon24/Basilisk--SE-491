@@ -7,7 +7,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,15 +32,18 @@ public class JsonParseCache {
         if (path == null || path.isEmpty()) {
             throw new IllegalArgumentException("Could not detect local storage path");
         }
-
-        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        List<DataUnit> dataFromFiles = new ArrayList<>();
-        Gson gson = new Gson();
-        System.out.println("Fetching files in: " + System.getProperty("user.home") + File.separator +
+        Path folderPath = Paths.get(System.getProperty("user.home") + File.separator +
                 "basilisk" + File.separator + path);
 
-        try (Stream<Path> dataFiles = Files.list(Paths.get(System.getProperty("user.home") + File.separator +
-                "basilisk" + File.separator + path))) {
+        if (!Files.exists(folderPath)) {
+            folderPath.toFile().mkdirs();
+        }
+
+        List<DataUnit> dataFromFiles = new ArrayList<>();
+        Gson gson = new Gson();
+        System.out.println("Fetching files in: " + folderPath);
+
+        try (Stream<Path> dataFiles = Files.list(folderPath)) {
             dataFiles.forEach(f -> {
                 try (BufferedReader reader = Files.newBufferedReader(f)) {
                     if (isEncryptionModeEnabled) {
@@ -62,15 +64,15 @@ public class JsonParseCache {
     }
 
     public static DataUnit getById(String id) {
-        return idToDataMap.get(id);
+        return idToDataMap.getOrDefault(id, new DataUnit());
     }
 
     public static List<DataUnit> getByTag(String tag) {
-        return tagToDataMap.get(tag);
+        return tagToDataMap.getOrDefault(tag, new ArrayList<>());
     }
 
     public static List<DataUnit> getByRole(String role) {
-        return roleToDataMap.get(role);
+        return roleToDataMap.getOrDefault(role, new ArrayList<>());
     }
 
     public static void insertData(DataUnit dataUnit) {
@@ -90,31 +92,26 @@ public class JsonParseCache {
     }
 
     public static void writeToFiles() {
-        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        File folder = null;
-        try {
-            folder = new File(classLoader.getResource(path).toURI());
+        Path folderPath = Paths.get(System.getProperty("user.home") + File.separator +
+                "basilisk" + File.separator + path);
 
-            if (!folder.exists() || !folder.isDirectory()) {
-                throw new RuntimeException("Storage path: " + folder.getPath() + " is not a folder/does not exist");
-            }
+        if (!Files.exists(folderPath)) {
+            throw new RuntimeException("Storage path: " + folderPath + " is not a folder/does not exist");
+        }
 
-            // delete existing data
-            File[] currFiles = folder.listFiles();
-            if (currFiles != null && currFiles.length > 0) {
-                Arrays.stream(currFiles).forEach(File::delete);
-            }
+        // delete existing data
+        File[] currFiles = folderPath.toFile().listFiles();
+        if (currFiles != null && currFiles.length > 0) {
+            Arrays.stream(currFiles).forEach(File::delete);
+        }
 
-            for (DataUnit unit : idToDataMap.values()) {
-                System.out.println("Storing to: " + folder.getPath() + unit.getId());
-                try (FileWriter unitFile = new FileWriter(new File(folder.getPath(), unit.getId()))) {
-                    unitFile.write(isEncryptionModeEnabled ? unit.toEncryptedString() : unit.toString());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        for (DataUnit unit : idToDataMap.values()) {
+            System.out.println("Storing to: " + folderPath + unit.getId());
+            try (FileWriter unitFile = new FileWriter(new File(folderPath.toFile(), unit.getId()))) {
+                unitFile.write(isEncryptionModeEnabled ? unit.toEncryptedString() : unit.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
         }
 
         System.out.println("Completed Persistence of Data");
