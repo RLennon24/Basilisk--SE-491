@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@TestMethodOrder(MethodOrderer.MethodName.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class JsonParseCacheTest {
 
     static DataUnit testOneUnit = new DataUnit();
@@ -31,40 +31,12 @@ public class JsonParseCacheTest {
         testTwoUnit.setData("other test data");
         testTwoUnit.setRoles(Arrays.asList("basic"));
         testTwoUnit.setTags(Arrays.asList("personal", "common"));
+        JsonParseCache.insertData(testOneUnit);
+        JsonParseCache.insertData(testTwoUnit);
     }
 
     @Test
-    public void testGetById() {
-        DataUnit actualUnit = JsonParseCache.getById("testOne");
-        Assertions.assertEquals(testOneUnit, actualUnit);
-    }
-
-    @Test
-    public void testGetByTag() {
-        List<DataUnit> actualUnits = JsonParseCache.getByTag("personal");
-        Assertions.assertEquals(2, actualUnits.size());
-        DataUnit actualTestOne = actualUnits.stream().filter(u -> u.getId().equals("testOne")).collect(Collectors.toList()).get(0);
-        DataUnit actualTestTwo = actualUnits.stream().filter(u -> u.getId().equals("testTwo")).collect(Collectors.toList()).get(0);
-
-        Assertions.assertEquals(testOneUnit, actualTestOne);
-        Assertions.assertEquals(testTwoUnit, actualTestTwo);
-    }
-
-    @Test
-    public void testGetByRole() {
-        List<DataUnit> actualUnits = JsonParseCache.getByRole("basic");
-        Assertions.assertEquals(2, actualUnits.size());
-        DataUnit actualTestOne = actualUnits.stream().filter(u -> u.getId().equals("testOne")).collect(Collectors.toList()).get(0);
-        DataUnit actualTestTwo = actualUnits.stream().filter(u -> u.getId().equals("testTwo")).collect(Collectors.toList()).get(0);
-        Assertions.assertEquals(testOneUnit, actualTestOne);
-        Assertions.assertEquals(testTwoUnit, actualTestTwo);
-
-        actualUnits = JsonParseCache.getByRole("government");
-        Assertions.assertEquals(1, actualUnits.size());
-        Assertions.assertEquals(testOneUnit, actualUnits.get(0));
-    }
-
-    @Test
+    @Order(1)
     public void testInsertData() {
         DataUnit originalUnit = new DataUnit();
         originalUnit.setId("id");
@@ -78,6 +50,7 @@ public class JsonParseCacheTest {
     }
 
     @Test
+    @Order(2)
     public void testWriteToFiles() {
         JsonParseCache.writeToFiles();
 
@@ -93,5 +66,39 @@ public class JsonParseCacheTest {
         Assertions.assertNotNull(currFiles);
         Assertions.assertEquals(3, currFiles.length);
         Arrays.stream(currFiles).filter(f -> f.getName().equals("id")).forEach(File::delete);
+    }
+
+    @Test
+    @Order(3)
+    public void testGetById() {
+        DataUnit actualUnit = JsonParseCache.getById("testOne");
+        Assertions.assertEquals(testOneUnit, actualUnit);
+    }
+
+    @Test
+    @Order(4)
+    public void testGetByTag() {
+        List<DataUnit> actualUnits = JsonParseCache.getByTag("personal");
+        Assertions.assertEquals(2, actualUnits.size());
+        DataUnit actualTestOne = actualUnits.stream().filter(u -> u.getId().equals("testOne")).collect(Collectors.toList()).get(0);
+        DataUnit actualTestTwo = actualUnits.stream().filter(u -> u.getId().equals("testTwo")).collect(Collectors.toList()).get(0);
+
+        Assertions.assertEquals(testOneUnit, actualTestOne);
+        Assertions.assertEquals(testTwoUnit, actualTestTwo);
+    }
+
+    @Test
+    @Order(5)
+    public void testGetByRole() {
+        List<DataUnit> actualUnits = JsonParseCache.getByRole("basic");
+        Assertions.assertEquals(2, actualUnits.size());
+        DataUnit actualTestOne = actualUnits.stream().filter(u -> u.getId().equals("testOne")).collect(Collectors.toList()).get(0);
+        DataUnit actualTestTwo = actualUnits.stream().filter(u -> u.getId().equals("testTwo")).collect(Collectors.toList()).get(0);
+        Assertions.assertEquals(testOneUnit, actualTestOne);
+        Assertions.assertEquals(testTwoUnit, actualTestTwo);
+
+        actualUnits = JsonParseCache.getByRole("government");
+        Assertions.assertEquals(1, actualUnits.size());
+        Assertions.assertEquals(testOneUnit, actualUnits.get(0));
     }
 }
