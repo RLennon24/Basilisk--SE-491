@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/insert")
-public class BasiliskUserAPI {
+public class InsertDataService {
 
     @PostMapping
     @ResponseBody
-    public ResponseEntity<BaseMessage> insertUser(@RequestBody BaseMessage transport) {
+    public ResponseEntity<BaseMessage> insertData(@RequestBody BaseMessage transport) {
         try {
             System.out.println("Received Request to Insert Data");
             String dataUnitStr = EncrypterUtil.decodeMessage(transport);
