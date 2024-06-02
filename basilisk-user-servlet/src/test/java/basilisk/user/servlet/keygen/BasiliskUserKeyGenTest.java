@@ -8,6 +8,7 @@ import sun.security.rsa.RSAPublicKeyImpl;
 
 import java.io.File;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
@@ -31,12 +32,11 @@ class BasiliskUserKeyGenTest {
 
 	@Test
 	public void testStoreKeys() {
-		final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		File folder = Paths.get(System.getProperty("user.home") + File.separator +
 				"basilisk" + File.separator + "keys").toFile();
 
-		if (!folder.exists() || !folder.isDirectory()) {
-			throw new RuntimeException("Key path: " + folder.getPath() + " is not a folder/does not exist");
+		if (!Files.exists(folder.toPath())) {
+			folder.mkdirs();
 		}
 
 		// delete existing data
