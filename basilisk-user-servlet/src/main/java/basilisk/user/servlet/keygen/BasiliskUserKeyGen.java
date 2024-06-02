@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
@@ -64,10 +65,10 @@ public class BasiliskUserKeyGen {
     private static RSAPublicKey readPublicKeyFromFile(String filePath) {
         RSAPublicKey key = null;
 
-        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
+        Path folderPath = Paths.get(System.getProperty("user.home") + File.separator +
+                "basilisk" + File.separator + filePath);
         try {
-            byte[] encodedPublicKey = Files.readAllBytes(Paths.get(classLoader.getResource(filePath).toURI()));
+            byte[] encodedPublicKey = Files.readAllBytes(folderPath);
 
             KeyFactory kf = KeyFactory.getInstance("RSA");
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encodedPublicKey);
@@ -81,10 +82,12 @@ public class BasiliskUserKeyGen {
 
     private static RSAPrivateKey readPrivateKeyFromFile(String filePath) {
         RSAPrivateKey key = null;
-        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+        Path folderPath = Paths.get(System.getProperty("user.home") + File.separator +
+                "basilisk" + File.separator + filePath);
 
         try {
-            byte[] encodedPrivateKey = Files.readAllBytes(Paths.get(classLoader.getResource(filePath).toURI()));
+            byte[] encodedPrivateKey = Files.readAllBytes(folderPath);
             KeyFactory kf = KeyFactory.getInstance("RSA");
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encodedPrivateKey);
             key = (RSAPrivateKey) kf.generatePrivate(keySpec);
@@ -100,18 +103,18 @@ public class BasiliskUserKeyGen {
             generateKeyPair();
         }
 
-        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        URL folder = classLoader.getResource(KEYS_FOLDER_PATH);
+        Path folderPath = Paths.get(System.getProperty("user.home") + File.separator +
+                "basilisk" + File.separator + KEYS_FOLDER_PATH);
 
         //store private
-        try (FileOutputStream outPrivate = new FileOutputStream(new File(folder.getPath(), PRIVATE_KEY_FILENAME))) {
+        try (FileOutputStream outPrivate = new FileOutputStream(new File(folderPath.toFile(), PRIVATE_KEY_FILENAME))) {
             outPrivate.write(kp.getPrivate().getEncoded());
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         //store public
-        try (FileOutputStream outPublic = new FileOutputStream(new File(folder.getPath(), PUBLIC_KEY_FILENAME))) {
+        try (FileOutputStream outPublic = new FileOutputStream(new File(folderPath.toFile(), PUBLIC_KEY_FILENAME))) {
             outPublic.write(kp.getPublic().getEncoded());
         } catch (IOException e) {
             e.printStackTrace();

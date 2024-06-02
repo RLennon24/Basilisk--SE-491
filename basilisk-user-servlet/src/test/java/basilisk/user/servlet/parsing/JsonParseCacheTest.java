@@ -4,7 +4,7 @@ import basilisk.user.servlet.keygen.BasiliskUserKeyGen;
 import org.junit.jupiter.api.*;
 
 import java.io.File;
-import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -81,22 +81,17 @@ public class JsonParseCacheTest {
     public void testWriteToFiles() {
         JsonParseCache.writeToFiles();
 
-        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        File folder = null;
-        try {
-            folder = new File(classLoader.getResource("data" + File.separator + "basic").toURI());
-            if (!folder.exists() || !folder.isDirectory()) {
-                throw new RuntimeException("Storage path: " + folder.getPath() + " is not a folder/does not exist");
-            }
-
-            // delete existing data
-            File[] currFiles = folder.listFiles();
-
-            Assertions.assertNotNull(currFiles);
-            Assertions.assertEquals(3, currFiles.length);
-            Arrays.stream(currFiles).filter(f -> f.getName().equals("id")).forEach(File::delete);
-        } catch (URISyntaxException e) {
-            Assertions.fail();
+        File folder = Paths.get(System.getProperty("user.home") + File.separator +
+                "basilisk" + File.separator + "data" + File.separator + "basic").toFile();
+        if (!folder.exists() || !folder.isDirectory()) {
+            throw new RuntimeException("Storage path: " + folder.getPath() + " is not a folder/does not exist");
         }
+
+        // delete existing data
+        File[] currFiles = folder.listFiles();
+
+        Assertions.assertNotNull(currFiles);
+        Assertions.assertEquals(3, currFiles.length);
+        Arrays.stream(currFiles).filter(f -> f.getName().equals("id")).forEach(File::delete);
     }
 }
