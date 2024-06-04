@@ -51,8 +51,9 @@
         else {apiUrl += '/tag/';}
         apiUrl += document.getElementById('lookup-query').value;
         outputElement.textContent = apiUrl;
+        const apiUrlConst = apiUrl;
         //Execute URL
-        fetch(apiUrl).then(response => {
+        fetch(apiUrlConst).then(response => {
           if (!response.ok) {throw new Error('Network response was not ok');}
           return response.json();
         })
