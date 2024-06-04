@@ -2,11 +2,17 @@
 // npm install react react-dom
 
 // index.js
-import React from 'react';
+import { StrictMode, React } from 'react';
 import ReactDOM from 'react-dom';
-import './main/components/basilisk-ui-mockup/styles.css'; // Import CSS for styling
-import BasiliskDashboard from './main/components/basilisk-ui-mockup/basilisk-dashboard';
+import './main/basilisk-ui/styles.css'; // Import CSS for styling
+import { BrowserRouter } from 'react-router-dom';
 
+import App from './main/basilisk-ui/App';
 
-// Render the BasiliskDashboard component to the root element in the HTML document
-ReactDOM.render(<BasiliskDashboard />, document.getElementById('root'));
+ReactDOM.render(
+<StrictMode>
+    <BrowserRouter>
+        <App />
+    </BrowserRouter>
+</StrictMode>,
+document.getElementById('root'));
