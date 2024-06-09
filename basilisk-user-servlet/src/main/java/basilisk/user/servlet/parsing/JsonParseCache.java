@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class JsonParseCache {
@@ -67,12 +68,12 @@ public class JsonParseCache {
         return idToDataMap.getOrDefault(id, new DataUnit());
     }
 
-    public static List<DataUnit> getByTag(String tag) {
-        return tagToDataMap.getOrDefault(tag, new ArrayList<>());
+    public static List<DataUnit> getByTag(String... tags) {
+        return Arrays.stream(tags).map(t -> tagToDataMap.getOrDefault(t, new ArrayList<>())).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
-    public static List<DataUnit> getByRole(String role) {
-        return roleToDataMap.getOrDefault(role, new ArrayList<>());
+    public static List<DataUnit> getByRole(String... roles) {
+        return Arrays.stream(roles).map(r -> roleToDataMap.getOrDefault(r, new ArrayList<>())).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
     public static void insertData(DataUnit dataUnit) {
