@@ -15,7 +15,6 @@ const DataLookup = () => {
       apiUrl += "/tag/";
     }
     apiUrl += document.getElementById("lookup-query").value;
-    outputElement.textContent = apiUrl;
     //Execute URL
     fetch(apiUrl, {
       method: "GET", // *GET, POST, PUT, DELETE, etc.
@@ -36,10 +35,31 @@ const DataLookup = () => {
         return response.json();
       })
       .then((data) => {
-          outputElement.textContent = JSON.stringify(data, null, 2);
-          if (outputElement.textContent == "[]"){
-            outputElement.textContent = "No entries found";
+        //Check for length of data received; return null message if none found
+        var entries = Object.keys(data).length;
+        if (entries == 0){
+          outputElement.textContent = "No entries found";
+        }
+        //Parse returned data from API into readable strings
+        else{
+          const outputResults = JSON.stringify(data,null,1);
+          const parsedResults = JSON.parse(outputResults);
+          var trueResults = "" + parsedResults.length + " entries found:\n\n";
+          var itemHolder;
+          var itemParsed;
+          //Load each entry of returned data and parse + print them individually
+          //to be displayed in UI
+          for (let i = 0; i < parsedResults.length; i++){
+            itemHolder = JSON.stringify(parsedResults[i],null,2);
+            itemParsed = JSON.parse(itemHolder);
+            trueResults += "ID: " + itemParsed.id;
+            trueResults += "\nData: " + itemParsed.data;
+            trueResults += "\nTags: " + itemParsed.tags;
+            trueResults += "\nRoles: " + itemParsed.roles;
+            trueResults += "\n\n";
           }
+          outputElement.textContent = trueResults;
+        }
       })
       .catch((error) => {
         console.error("Error:", error);
