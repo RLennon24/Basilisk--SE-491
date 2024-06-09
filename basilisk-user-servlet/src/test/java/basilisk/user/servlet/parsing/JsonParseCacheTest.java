@@ -7,7 +7,7 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -78,7 +78,7 @@ public class JsonParseCacheTest {
     @Test
     @Order(4)
     public void testGetByTag() {
-        List<DataUnit> actualUnits = JsonParseCache.getByTag("personal");
+        Set<DataUnit> actualUnits = JsonParseCache.getByTag("personal", "common");
         Assertions.assertEquals(2, actualUnits.size());
         DataUnit actualTestOne = actualUnits.stream().filter(u -> u.getId().equals("testOne")).collect(Collectors.toList()).get(0);
         DataUnit actualTestTwo = actualUnits.stream().filter(u -> u.getId().equals("testTwo")).collect(Collectors.toList()).get(0);
@@ -90,7 +90,7 @@ public class JsonParseCacheTest {
     @Test
     @Order(5)
     public void testGetByRole() {
-        List<DataUnit> actualUnits = JsonParseCache.getByRole("basic");
+        Set<DataUnit> actualUnits = JsonParseCache.getByRole("basic");
         Assertions.assertEquals(2, actualUnits.size());
         DataUnit actualTestOne = actualUnits.stream().filter(u -> u.getId().equals("testOne")).collect(Collectors.toList()).get(0);
         DataUnit actualTestTwo = actualUnits.stream().filter(u -> u.getId().equals("testTwo")).collect(Collectors.toList()).get(0);
@@ -99,6 +99,6 @@ public class JsonParseCacheTest {
 
         actualUnits = JsonParseCache.getByRole("government");
         Assertions.assertEquals(1, actualUnits.size());
-        Assertions.assertEquals(testOneUnit, actualUnits.get(0));
+        Assertions.assertEquals(testOneUnit, actualUnits.stream().filter(u -> u.getId().equals("testOne")).collect(Collectors.toList()).get(0));
     }
 }
