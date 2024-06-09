@@ -36,7 +36,10 @@ const DataLookup = () => {
         return response.json();
       })
       .then((data) => {
-        outputElement.textContent = JSON.stringify(data, null, 2);
+          outputElement.textContent = JSON.stringify(data, null, 2);
+          if (outputElement.textContent == "[]"){
+            outputElement.textContent = "No entries found";
+          }
       })
       .catch((error) => {
         console.error("Error:", error);
