@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping(path = "/viewData", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -44,7 +44,7 @@ public class ViewDataService {
             System.out.println("Received Request to View Data By Role");
             String roles = EncrypterUtil.decodeMessage(transport);
             String[] rolesArr = roles.split(",");
-            List<DataUnit> units = JsonParseCache.getByRole(rolesArr);
+            Set<DataUnit> units = JsonParseCache.getByRole(rolesArr);
             System.out.println("Found " + units + " for Roles: " + roles);
 
             Gson gson = new Gson();
@@ -65,7 +65,7 @@ public class ViewDataService {
             String tags = EncrypterUtil.decodeMessage(transport);
             String[] tagsArr = tags.split(",");
 
-            List<DataUnit> units = JsonParseCache.getByTag(tagsArr);
+            Set<DataUnit> units = JsonParseCache.getByTag(tagsArr);
             System.out.println("Found " + units + " for Tag: " + tags);
 
             Gson gson = new Gson();

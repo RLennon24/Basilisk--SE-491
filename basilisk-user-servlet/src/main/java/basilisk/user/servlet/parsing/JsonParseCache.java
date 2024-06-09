@@ -68,12 +68,12 @@ public class JsonParseCache {
         return idToDataMap.getOrDefault(id, new DataUnit());
     }
 
-    public static List<DataUnit> getByTag(String... tags) {
-        return Arrays.stream(tags).map(t -> tagToDataMap.getOrDefault(t, new ArrayList<>())).flatMap(Collection::stream).collect(Collectors.toList());
+    public static Set<DataUnit> getByTag(String... tags) {
+        return Arrays.stream(tags).map(t -> tagToDataMap.getOrDefault(t, new ArrayList<>())).flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
-    public static List<DataUnit> getByRole(String... roles) {
-        return Arrays.stream(roles).map(r -> roleToDataMap.getOrDefault(r, new ArrayList<>())).flatMap(Collection::stream).collect(Collectors.toList());
+    public static Set<DataUnit> getByRole(String... roles) {
+        return Arrays.stream(roles).map(r -> roleToDataMap.getOrDefault(r, new ArrayList<>())).flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
     public static void insertData(DataUnit dataUnit) {
