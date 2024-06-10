@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping(path = "/viewData", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -42,14 +42,14 @@ public class ViewDataService {
     public ResponseEntity<BaseMessage> getDataByRole(@RequestBody BaseMessage transport, HttpServletRequest request) {
         try {
             System.out.println("Received Request to View Data By Role");
-            String role = EncrypterUtil.decodeMessage(transport);
-
-            List<DataUnit> units = JsonParseCache.getByRole(role);
-            System.out.println("Found " + units + " for Role: " + role);
+            String roles = EncrypterUtil.decodeMessage(transport);
+            String[] rolesArr = roles.split(",");
+            Set<DataUnit> units = JsonParseCache.getByRole(rolesArr);
+            System.out.println("Found " + units + " for Roles: " + roles);
 
             Gson gson = new Gson();
             BaseMessage baseMessage = BaseMessageBuilder.encodeMessage(gson.toJson(units));
-            System.out.println("Returning Data for Role: " + role);
+            System.out.println("Returning Data for Roles: " + roles);
             return ResponseEntity.ok(baseMessage);
         } catch (Exception e) {
             String error = "Could not retrieve data for Role";
@@ -62,13 +62,15 @@ public class ViewDataService {
     public ResponseEntity<BaseMessage> getDataByTag(@RequestBody BaseMessage transport, HttpServletRequest request) {
         try {
             System.out.println("Received Request to View Data By Tag");
-            String tag = EncrypterUtil.decodeMessage(transport);
-            List<DataUnit> units = JsonParseCache.getByTag(tag);
-            System.out.println("Found " + units + " for Tag: " + tag);
+            String tags = EncrypterUtil.decodeMessage(transport);
+            String[] tagsArr = tags.split(",");
+
+            Set<DataUnit> units = JsonParseCache.getByTag(tagsArr);
+            System.out.println("Found " + units + " for Tag: " + tags);
 
             Gson gson = new Gson();
             BaseMessage baseMessage = BaseMessageBuilder.encodeMessage(gson.toJson(units));
-            System.out.println("Returning Data for Tag: " + tag);
+            System.out.println("Returning Data for Tag: " + tags);
             return ResponseEntity.ok(baseMessage);
         } catch (Exception e) {
             String error = "Could not retrieve data for Tag";
