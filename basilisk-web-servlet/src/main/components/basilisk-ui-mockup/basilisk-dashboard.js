@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import DynamicForm from './DynamicForm.js';
+import AssignRolesForm from './AssignRolesForm';
 
 function BasiliskDashboard() {
     const [activeSection, setActiveSection] = useState('dashboard-section');
