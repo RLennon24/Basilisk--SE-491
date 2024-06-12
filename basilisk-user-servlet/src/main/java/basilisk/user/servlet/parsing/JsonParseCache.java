@@ -4,23 +4,27 @@ import com.google.gson.Gson;
 import lombok.Setter;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class JsonParseCache {
 
-    private static final Map<String, DataUnit> idToDataMap = new HashMap<>();
-    private static final Map<String, List<DataUnit>> tagToDataMap = new HashMap<>();
-    private static final Map<String, List<DataUnit>> roleToDataMap = new HashMap<>();
+    private static final Map<String, DataUnit> idToDataMap = new ConcurrentHashMap<>();
+    private static final Map<String, List<DataUnit>> tagToDataMap = new ConcurrentHashMap<>();
+    private static final Map<String, List<DataUnit>> roleToDataMap = new ConcurrentHashMap<>();
 
     @Setter
     static String path;
+    @Setter
+    static boolean isEncryptionModeEnabled;
 
     public static void parseFiles() {
         //read in as string
@@ -29,58 +33,88 @@ public class JsonParseCache {
         if (path == null || path.isEmpty()) {
             throw new IllegalArgumentException("Could not detect local storage path");
         }
+        Path folderPath = Paths.get(System.getProperty("user.home") + File.separator +
+                "basilisk" + File.separator + path);
 
-        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        Gson gson = new Gson();
+        if (!Files.exists(folderPath)) {
+            folderPath.toFile().mkdirs();
+        }
+
         List<DataUnit> dataFromFiles = new ArrayList<>();
-        try (Stream<Path> dataFiles = Files.list(Paths.get(classLoader.getResource(path).toURI()))) {
+        Gson gson = new Gson();
+        System.out.println("Fetching files in: " + folderPath);
+
+        try (Stream<Path> dataFiles = Files.list(folderPath)) {
             dataFiles.forEach(f -> {
                 try (BufferedReader reader = Files.newBufferedReader(f)) {
-                    DataUnit dataUnit = gson.fromJson(reader, DataUnit.class);
-                    dataFromFiles.add(dataUnit);
+                    if (isEncryptionModeEnabled) {
+                        dataFromFiles.add(DataUnit.fromEncryptedString(reader.readLine()));
+                    } else {
+                        dataFromFiles.add(gson.fromJson(reader, DataUnit.class));
+                    }
                 } catch (Exception e) {
-                    throw new RuntimeException("Could not parse data");
+                    throw new RuntimeException("Could not parse file: " + f.getFileName());
                 }
             });
         } catch (Exception e) {
             throw new RuntimeException("Could not parse data");
         }
 
-        for (DataUnit dataUnit : dataFromFiles) {
-            idToDataMap.put(dataUnit.getId(), dataUnit);
-
-            for (String tag : dataUnit.getTags()) {
-                if (tagToDataMap.containsKey(tag)) {
-                    tagToDataMap.get(tag).add(dataUnit);
-                } else {
-                    List<DataUnit> dataUnits = new ArrayList<>();
-                    dataUnits.add(dataUnit);
-                    tagToDataMap.put(tag, dataUnits);
-                }
-            }
-
-            for (String role : dataUnit.getRoles()) {
-                if (roleToDataMap.containsKey(role)) {
-                    roleToDataMap.get(role).add(dataUnit);
-                } else {
-                    List<DataUnit> dataUnits = new ArrayList<>();
-                    dataUnits.add(dataUnit);
-                    roleToDataMap.put(role, dataUnits);
-                }
-            }
-        }
+        dataFromFiles.parallelStream().forEach(JsonParseCache::insertData);
         System.out.println("Successfully cached user data");
     }
 
     public static DataUnit getById(String id) {
-        return idToDataMap.get(id);
+        return idToDataMap.getOrDefault(id, new DataUnit());
     }
 
-    public static List<DataUnit> getByTag(String tag) {
-        return tagToDataMap.get(tag);
+    public static Set<DataUnit> getByTag(String... tags) {
+        return Arrays.stream(tags).map(t -> tagToDataMap.getOrDefault(t, new ArrayList<>())).flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
-    public static List<DataUnit> getByRole(String role) {
-        return roleToDataMap.get(role);
+    public static Set<DataUnit> getByRole(String... roles) {
+        return Arrays.stream(roles).map(r -> roleToDataMap.getOrDefault(r, new ArrayList<>())).flatMap(Collection::stream).collect(Collectors.toSet());
+    }
+
+    public static void insertData(DataUnit dataUnit) {
+        if (idToDataMap.containsKey(dataUnit.getId()) && idToDataMap.get(dataUnit.getId()).equals(dataUnit)) {
+            return;
+        }
+
+        idToDataMap.put(dataUnit.getId(), dataUnit);
+
+        for (String tag : dataUnit.getTags()) {
+            tagToDataMap.computeIfAbsent(tag, s -> Collections.synchronizedList(new ArrayList<>())).add(dataUnit);
+        }
+
+        for (String role : dataUnit.getRoles()) {
+            roleToDataMap.computeIfAbsent(role, s -> Collections.synchronizedList(new ArrayList<>())).add(dataUnit);
+        }
+    }
+
+    public static void writeToFiles() {
+        Path folderPath = Paths.get(System.getProperty("user.home") + File.separator +
+                "basilisk" + File.separator + path);
+
+        if (!Files.exists(folderPath)) {
+            throw new RuntimeException("Storage path: " + folderPath + " is not a folder/does not exist");
+        }
+
+        // delete existing data
+        File[] currFiles = folderPath.toFile().listFiles();
+        if (currFiles != null && currFiles.length > 0) {
+            Arrays.stream(currFiles).forEach(File::delete);
+        }
+
+        for (DataUnit unit : idToDataMap.values()) {
+            System.out.println("Storing to: " + folderPath + unit.getId());
+            try (FileWriter unitFile = new FileWriter(new File(folderPath.toFile(), unit.getId()))) {
+                unitFile.write(isEncryptionModeEnabled ? unit.toEncryptedString() : unit.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        System.out.println("Completed Persistence of Data");
     }
 }

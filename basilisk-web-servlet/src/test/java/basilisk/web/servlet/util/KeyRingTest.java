@@ -18,7 +18,7 @@ public class KeyRingTest {
     @Before
     public void setUp() {
         expectedKey = Mockito.mock(PublicKey.class);
-        keyRing = new KeyRing(expectedKey);
+        keyRing = new KeyRing("", "", expectedKey);
     }
 
     @Test

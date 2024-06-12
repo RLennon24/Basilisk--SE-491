@@ -63,7 +63,7 @@ public class KeyExchangeClientTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(gson.toJson(response)));
 
-        KeyExchangeClient.exchangePublicKey(restTemplate, "http://localhost:8001/keyexchange");
+        KeyExchangeClient.exchangePublicKey(restTemplate, "me", "http://localhost:8001/keyexchange");
 
         mockServer.verify();
     }

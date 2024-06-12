@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static basilisk.web.servlet.service.keyexchange.KeyExchangeService.DATA_OWNER_HEADER;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,6 +37,7 @@ public class KeyExchangeServiceTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/keyexchange/publicKey")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .header(DATA_OWNER_HEADER, "TEST")
                         .content(gson.toJson(message)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").exists());
@@ -54,6 +56,7 @@ public class KeyExchangeServiceTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/keyexchange/symmetricKey")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .header(DATA_OWNER_HEADER, "TEST")
                         .content(gson.toJson(message)))
                 .andExpect(status().is5xxServerError())
                 .andExpect(jsonPath("$.message").exists());

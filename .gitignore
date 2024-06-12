@@ -2,3 +2,7 @@
 /basilisk-web-servlet/target/
 /deps.txt
 /.vscode
+/package-lock.json
+/node_modules
+/basilisk-web-servlet/package-lock.json
+/basilisk-web-servlet/node_modules

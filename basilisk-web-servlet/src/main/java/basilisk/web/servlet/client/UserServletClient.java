@@ -1,6 +1,9 @@
 package basilisk.web.servlet.client;
 
+import basilisk.web.servlet.keygen.KeyCache;
 import basilisk.web.servlet.message.BaseMessage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -13,14 +16,15 @@ import java.util.Optional;
 
 public class UserServletClient {
 
-    public static BaseMessage sendMessageToClient(RestTemplate template, BaseMessage message, String serviceAddress, String endpoint) {
+    public static BaseMessage sendMessageToClient(RestTemplate template, BaseMessage message, String owner, String endpoint) {
         System.out.println("Sending message to User Server");
-        return sendRequestMessage(template, serviceAddress, endpoint, message);
+        return sendRequestMessage(template, KeyCache.getServiceIpForOwner(owner), endpoint, message);
     }
 
     private static BaseMessage sendRequestMessage(RestTemplate template, String serviceAddress, String endpoint, BaseMessage keyTransport) {
         HttpEntity<BaseMessage> request = new HttpEntity<>(keyTransport, createHeaders());
-        ResponseEntity<BaseMessage> responseEntity = template.postForEntity("http://" + serviceAddress + endpoint, request, BaseMessage.class);
+        ResponseEntity<BaseMessage> responseEntity =
+                template.postForEntity("http://" + serviceAddress + ":8009" + endpoint, request, BaseMessage.class);
         return Optional.ofNullable(responseEntity.getBody()).orElseThrow(() -> new IllegalArgumentException("Response cannot be null"));
     }
 
