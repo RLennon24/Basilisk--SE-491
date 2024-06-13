@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
 import java.util.Set;
 
 @Controller
@@ -28,7 +29,10 @@ public class ViewDataService {
         try {
             System.out.println("Received Request to View Data by ID");
             String dataId = EncrypterUtil.decodeMessage(transport);
-            BaseMessage baseMessage = BaseMessageBuilder.encodeMessage(JsonParseCache.getById(dataId).toString());
+            Set<DataUnit> datUnit = Collections.singleton(JsonParseCache.getById(dataId));
+            Gson gson = new Gson();
+
+            BaseMessage baseMessage = BaseMessageBuilder.encodeMessage(gson.toJson(datUnit));
             System.out.println("Returning Data for ID: " + dataId);
             return ResponseEntity.ok(baseMessage);
         } catch (Exception e) {
