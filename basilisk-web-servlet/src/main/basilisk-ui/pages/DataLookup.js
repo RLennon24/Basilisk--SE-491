@@ -2,7 +2,7 @@ const DataLookup = () => {
   const fetchData = () => {
     var apiUrl = "http://localhost:8001/viewData";
     const outputElement = document.getElementById("LookupResults");
-
+    outputElement.textContent = "";
     //TODO Set up contingency in case of occupied port
 
     //Build Lookup URL
@@ -14,10 +14,22 @@ const DataLookup = () => {
     } else {
       apiUrl += "/tag/";
     }
-    apiUrl += document.getElementById("lookup-query").value;
-    outputElement.textContent = apiUrl;
-    //Execute URL
-    fetch(apiUrl, {
+
+    //Load input(s) into array for URL to grab piecemeal in future for-loop
+    let lookupInput = [];
+    let lookupRaw = document.getElementById("lookup-query").value;
+    lookupRaw = lookupRaw.replace(/\s/g, '');
+    let commaIndex = lookupRaw.length;
+    while (commaIndex >= 0 ){
+      lookupInput.push(lookupRaw.substring(0,commaIndex));
+      lookupRaw = lookupRaw.substring(commaIndex);
+      commaIndex = lookupRaw.indexOf(",");
+    }
+    //Go through the array
+    for (let i = 0; i < lookupInput.length; i++){
+      var thisApiUrl = apiUrl + lookupInput[i];
+      //Execute URL
+      fetch(thisApiUrl, {
       method: "GET", // *GET, POST, PUT, DELETE, etc.
       mode: "cors", // no-cors, *cors, same-origin
       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -36,11 +48,36 @@ const DataLookup = () => {
         return response.json();
       })
       .then((data) => {
-        outputElement.textContent = JSON.stringify(data, null, 2);
+        //Check for length of data received; return null message if none found
+        var entries = Object.keys(data).length;
+        if (entries == 0){
+          outputElement.textContent = "No entries found";
+        }
+        //Parse returned data from API into readable strings
+        else{
+          const outputResults = JSON.stringify(data,null,1);
+          const parsedResults = JSON.parse(outputResults);
+          var trueResults = "" + parsedResults.length + " entries found:\n\n";
+          var itemHolder;
+          var itemParsed;
+          //Load each entry of returned data and parse + print them individually
+          //to be displayed in UI
+          for (let i = 0; i < parsedResults.length; i++){
+            itemHolder = JSON.stringify(parsedResults[i],null,2);
+            itemParsed = JSON.parse(itemHolder);
+            trueResults += "ID: " + itemParsed.id;
+            trueResults += "\nData: " + itemParsed.data;
+            trueResults += "\nTags: " + itemParsed.tags;
+            trueResults += "\nRoles: " + itemParsed.roles;
+            trueResults += "\n\n";
+          }
+          outputElement.textContent += trueResults;
+        }
       })
       .catch((error) => {
         console.error("Error:", error);
       });
+    }    
   };
 
   return (
