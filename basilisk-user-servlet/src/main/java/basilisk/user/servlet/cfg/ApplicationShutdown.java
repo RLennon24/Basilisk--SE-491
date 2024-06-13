@@ -1,5 +1,6 @@
 package basilisk.user.servlet.cfg;
 
+import basilisk.user.servlet.MapRolestoUser.RolestoUser;
 import basilisk.user.servlet.client.WebServletClient;
 import basilisk.user.servlet.keyexchange.packaging.KeyPackager;
 import basilisk.user.servlet.keygen.BasiliskUserKeyGen;
@@ -25,5 +26,6 @@ public class ApplicationShutdown implements ApplicationListener<ContextClosedEve
          WebServletClient.sendRequest(template, environment.getProperty("account.owner"), environment.getProperty("server.delist.url"), BaseMessageBuilder.encodeMessage("DELIST"));
          BasiliskUserKeyGen.storeUserKeys();
          JsonParseCache.writeToFiles();
+         RolestoUser.writeFiles();
      }
 }
