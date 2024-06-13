@@ -1,8 +1,7 @@
 package basilisk.user.servlet.cfg;
 
-import basilisk.user.servlet.MapRolestoUser.RolestoUser;
+import basilisk.user.servlet.rolesmap.RolestoUser;
 import basilisk.user.servlet.client.WebServletClient;
-import basilisk.user.servlet.keyexchange.packaging.KeyPackager;
 import basilisk.user.servlet.keygen.BasiliskUserKeyGen;
 import basilisk.user.servlet.message.BaseMessageBuilder;
 import basilisk.user.servlet.parsing.JsonParseCache;
